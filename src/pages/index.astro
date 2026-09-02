@@ -1,0 +1,21 @@
+---
+import Base from '@/layouts/Base.astro';
+import Hero from '@/components/Hero.astro';
+import Marquee from '@/components/Marquee.astro';
+import { sections } from '@/config/site';
+import { registry } from '@/config/sections';
+
+const visible = sections.filter((s) => s.enabled);
+---
+
+<Base>
+  <Hero />
+  <Marquee />
+
+  {
+    visible.map((section) => {
+      const Section = registry[section.id];
+      return <Section section={section} />;
+    })
+  }
+</Base>

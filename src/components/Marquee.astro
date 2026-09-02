@@ -1,0 +1,99 @@
+---
+import { marquee } from '@/config/site';
+
+/** Cinta infinita. El contenido se duplica para que el bucle no tenga costura. */
+const items = [...marquee];
+---
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track">
+    {
+      [0, 1].map(() => (
+        <ul class="ticker__row">
+          {items.map((item, i) => (
+            <li>
+              <span>{item}</span>
+              <i class="sep" data-k={i % 4} />
+            </li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .ticker {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(0.9rem, 2vw, 1.4rem);
+    border-block: 1px solid var(--line);
+    background: color-mix(in oklab, var(--bg-2) 45%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+  }
+
+  .ticker__track {
+    display: flex;
+    width: max-content;
+    animation: slide 42s linear infinite;
+  }
+  .ticker:hover .ticker__track {
+    animation-play-state: paused;
+  }
+
+  @keyframes slide {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .ticker__row {
+    display: flex;
+    align-items: center;
+  }
+  .ticker__row li {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 2.6vw, 2rem);
+    padding-inline: clamp(0.6rem, 1.6vw, 1rem);
+  }
+  .ticker__row span {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    color: var(--ink-2);
+    white-space: nowrap;
+    font-variation-settings: 'opsz' 100, var(--wonk-on);
+    transition: color 0.4s var(--ease-out);
+  }
+  .ticker:hover .ticker__row span {
+    color: var(--ink);
+  }
+
+  .sep {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex: none;
+  }
+  .sep[data-k='0'] {
+    background: var(--c1);
+  }
+  .sep[data-k='1'] {
+    background: var(--c3);
+  }
+  .sep[data-k='2'] {
+    background: var(--c2);
+  }
+  .sep[data-k='3'] {
+    background: var(--c4);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ticker__track {
+      animation: none;
+    }
+  }
+</style>

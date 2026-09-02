@@ -1,0 +1,234 @@
+---
+import type { SectionDef } from '@/config/site';
+import { profile } from '@/config/site';
+import SectionHead from '@/components/SectionHead.astro';
+
+interface Props {
+  section: SectionDef;
+}
+const { section } = Astro.props;
+
+const channels = [
+  { label: 'Correo', value: profile.email, href: `mailto:${profile.email}` },
+  {
+    label: 'WhatsApp',
+    value: profile.phone,
+    href: `https://wa.me/${profile.phoneRaw.replace('+', '')}`,
+  },
+  { label: 'LinkedIn', value: '/juan-pablo-clavijo', href: profile.linkedin },
+  { label: 'CV', value: 'PDF actualizado', href: profile.cv },
+];
+---
+
+<section class="section contact" id={section.id}>
+  <div class="shell">
+    <SectionHead
+      index={section.index}
+      eyebrow={section.eyebrow}
+      title={section.title}
+      intro={section.intro}
+    />
+
+    <div class="contact__hero" data-reveal="mask">
+      <a class="contact__mail" href={`mailto:${profile.email}`} data-magnetic>
+        <span class="contact__mailTxt">{profile.email}</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M5 19 19 5M8.2 5H19v10.8"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </a>
+      <button class="contact__copy" type="button" data-copy={profile.email}>
+        <span>Copiar correo</span>
+      </button>
+    </div>
+
+    <ul class="contact__grid">
+      {
+        channels.map((c, i) => (
+          <li data-reveal style={`--d:${i * 80}ms`}>
+            <a
+              href={c.href}
+              target={c.href.startsWith('http') || c.href.endsWith('.pdf') ? '_blank' : undefined}
+              rel="noreferrer"
+            >
+              <span class="contact__label">{c.label}</span>
+              <span class="contact__value">{c.value}</span>
+              <span class="contact__arrow" aria-hidden="true">
+                ↗
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="contact__note" data-reveal>
+      Escribe con contexto: qué construyes, para quién y cuándo lo necesitas. Respondo con una
+      propuesta concreta, no con un formulario.
+    </p>
+  </div>
+</section>
+
+<style>
+  .contact__hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.6rem;
+    padding-block: clamp(1.4rem, 3vw, 2.4rem);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .contact__mail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 6.4vw, 4.4rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.045em;
+    font-variation-settings: 'opsz' 100, var(--wonk-on);
+    word-break: break-word;
+    transition: color 0.45s var(--ease-out);
+  }
+  .contact__mail svg {
+    width: 0.5em;
+    height: 0.5em;
+    flex: none;
+    transition: transform 0.6s var(--ease-spring);
+  }
+  .contact__mail:hover {
+    color: var(--c1);
+  }
+  .contact__mail:hover svg {
+    transform: translate(0.09em, -0.09em) rotate(8deg);
+  }
+
+  .contact__mailTxt {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1.5px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size 0.6s var(--ease-out);
+  }
+  .contact__mail:hover .contact__mailTxt {
+    background-size: 100% 1.5px;
+  }
+
+  .contact__copy {
+    padding: 0.55em 1.1em;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font-family: var(--font-alt);
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--ink-2);
+    transition: border-color 0.35s var(--ease-out), color 0.35s var(--ease-out),
+      transform 0.4s var(--ease-spring);
+  }
+  .contact__copy:hover {
+    border-color: var(--c1);
+    color: var(--ink);
+    transform: translateY(-2px);
+  }
+  .contact__copy[data-done] {
+    border-color: var(--c2);
+    color: var(--c2);
+  }
+
+  .contact__grid {
+    display: grid;
+    gap: 1px;
+    margin-top: clamp(2rem, 4vw, 3rem);
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .contact__grid a {
+    position: relative;
+    display: grid;
+    gap: 0.2rem;
+    padding: clamp(1.1rem, 2.4vw, 1.6rem);
+    background: var(--bg);
+    transition: background-color 0.4s var(--ease-out);
+    height: 100%;
+  }
+  .contact__grid a:hover {
+    background: var(--bg-2);
+  }
+  .contact__label {
+    font-family: var(--font-alt);
+    font-size: var(--step--2);
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .contact__value {
+    font-size: var(--step-0);
+    font-weight: 500;
+    word-break: break-word;
+  }
+  .contact__arrow {
+    position: absolute;
+    top: clamp(1.1rem, 2.4vw, 1.6rem);
+    right: clamp(1.1rem, 2.4vw, 1.6rem);
+    color: var(--ink-3);
+    opacity: 0;
+    transform: translate(-4px, 4px);
+    transition: opacity 0.4s var(--ease-out), transform 0.5s var(--ease-spring),
+      color 0.4s var(--ease-out);
+  }
+  .contact__grid a:hover .contact__arrow {
+    opacity: 1;
+    transform: none;
+    color: var(--c1);
+  }
+
+  .contact__note {
+    margin-top: clamp(1.4rem, 3vw, 2rem);
+    max-width: 52ch;
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  @media (min-width: 640px) {
+    .contact__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1000px) {
+    .contact__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    const label = btn.querySelector('span')!;
+    const original = label.textContent ?? '';
+
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy ?? '');
+        label.textContent = 'Copiado ✓';
+        btn.setAttribute('data-done', '');
+      } catch {
+        label.textContent = 'No se pudo copiar';
+      }
+      setTimeout(() => {
+        label.textContent = original;
+        btn.removeAttribute('data-done');
+      }, 2200);
+    });
+  });
+</script>

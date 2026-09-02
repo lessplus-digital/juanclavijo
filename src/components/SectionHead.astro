@@ -1,0 +1,76 @@
+---
+interface Props {
+  index: string;
+  eyebrow: string;
+  title: string;
+  intro?: string;
+  /** Alinea el bloque a la derecha en pantallas anchas */
+  align?: 'start' | 'end';
+}
+const { index, eyebrow, title, intro, align = 'start' } = Astro.props;
+---
+
+<header class="head" data-align={align}>
+  <div class="head__meta" data-reveal>
+    <span class="head__index mono-num">{index}</span>
+    <span class="head__line" aria-hidden="true"></span>
+    <span class="eyebrow">{eyebrow}</span>
+  </div>
+
+  <h2 class="head__title" data-reveal style="--d:90ms">{title}</h2>
+
+  {intro && <p class="head__intro" data-reveal style="--d:170ms">{intro}</p>}
+</header>
+
+<style>
+  .head {
+    margin-bottom: clamp(2.4rem, 5vw, 4rem);
+    max-width: 30ch;
+  }
+  .head[data-align='end'] {
+    margin-inline-start: auto;
+  }
+
+  .head__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: clamp(0.9rem, 2vw, 1.3rem);
+  }
+
+  .head__index {
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--c1);
+  }
+
+  .head__line {
+    width: clamp(28px, 6vw, 56px);
+    height: 1px;
+    background: var(--line-strong);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.9s var(--ease-out) 0.15s;
+  }
+  .head__meta.is-in .head__line {
+    transform: scaleX(1);
+  }
+
+  .head__title {
+    max-width: 18ch;
+  }
+
+  .head__intro {
+    margin-top: clamp(0.9rem, 2vw, 1.3rem);
+    max-width: 44ch;
+    color: var(--ink-3);
+    font-size: var(--step--1);
+  }
+
+  @media (min-width: 900px) {
+    .head {
+      max-width: 40ch;
+    }
+  }
+</style>

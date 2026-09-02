@@ -1,0 +1,153 @@
+---
+/**
+ * Interruptor claro / oscuro.
+ * Si el navegador soporta View Transitions, el tema nuevo entra como un
+ * círculo que se expande desde el propio botón.
+ */
+---
+
+<button class="tt" type="button" aria-label="Cambiar tema" title="Cambiar tema">
+  <span class="tt__track">
+    <span class="tt__knob">
+      <svg class="tt__sun" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.4"></circle>
+        <g stroke-linecap="round">
+          <path d="M12 1.8v2.6M12 19.6v2.6M22.2 12h-2.6M4.4 12H1.8" />
+          <path d="M19.2 4.8l-1.8 1.8M6.6 17.4l-1.8 1.8M19.2 19.2l-1.8-1.8M6.6 6.6L4.8 4.8" />
+        </g>
+      </svg>
+      <svg class="tt__moon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.5 14.6A8.8 8.8 0 0 1 9.4 3.5a8.8 8.8 0 1 0 11.1 11.1Z" />
+      </svg>
+    </span>
+  </span>
+</button>
+
+<style>
+  .tt {
+    --w: 60px;
+    --h: 30px;
+    display: grid;
+    place-items: center;
+    padding: 4px;
+    border-radius: 999px;
+    line-height: 0;
+  }
+
+  .tt__track {
+    position: relative;
+    display: block;
+    width: var(--w);
+    height: var(--h);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--bg-2) 60%, transparent);
+    transition: border-color 0.4s var(--ease-out), background-color 0.4s var(--ease-out);
+  }
+
+  .tt:hover .tt__track {
+    border-color: var(--c1);
+  }
+
+  .tt__knob {
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    width: calc(var(--h) - 8px);
+    height: calc(var(--h) - 8px);
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--bg);
+    transform: translateY(-50%);
+    transition: transform 0.55s var(--ease-spring), background-color 0.4s var(--ease-out);
+  }
+
+  :global(:root[data-theme='dark']) .tt__knob {
+    transform: translate(calc(var(--w) - var(--h) + 2px), -50%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .tt__knob {
+      transform: translate(calc(var(--w) - var(--h) + 2px), -50%);
+    }
+  }
+
+  .tt svg {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    transition: opacity 0.35s var(--ease-out), transform 0.55s var(--ease-spring);
+  }
+  .tt__moon {
+    fill: currentColor;
+    stroke: none;
+    opacity: 0;
+    transform: rotate(-70deg) scale(0.4);
+  }
+
+  :global(:root[data-theme='dark']) .tt__sun {
+    opacity: 0;
+    transform: rotate(70deg) scale(0.4);
+  }
+  :global(:root[data-theme='dark']) .tt__moon {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .tt__sun {
+      opacity: 0;
+      transform: rotate(70deg) scale(0.4);
+    }
+    :global(:root:not([data-theme='light'])) .tt__moon {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('.tt');
+  const root = document.documentElement;
+
+  function current(): 'light' | 'dark' {
+    if (root.dataset.theme === 'dark' || root.dataset.theme === 'light') {
+      return root.dataset.theme;
+    }
+    return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function apply(next: 'light' | 'dark') {
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch (e) {}
+    const color = next === 'dark' ? '#0c0b0a' : '#f2eee6';
+    document
+      .querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
+      .forEach((m) => m.setAttribute('content', color));
+  }
+
+  btn?.addEventListener('click', (event) => {
+    const next = current() === 'dark' ? 'light' : 'dark';
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const startVT = (document as any).startViewTransition?.bind(document);
+
+    if (!startVT || reduce) {
+      apply(next);
+      return;
+    }
+
+    const rect = btn.getBoundingClientRect();
+    root.style.setProperty('--tx', `${rect.left + rect.width / 2}px`);
+    root.style.setProperty('--ty', `${rect.top + rect.height / 2}px`);
+    root.classList.add('theme-swap');
+
+    const transition = startVT(() => apply(next));
+    transition.finished.finally(() => root.classList.remove('theme-swap'));
+    void event;
+  });
+</script>

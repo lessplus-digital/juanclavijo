@@ -1,0 +1,129 @@
+---
+import { profile } from '@/config/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="foot">
+  <div class="shell">
+    <div class="foot__top">
+      <p class="foot__word" aria-hidden="true">
+        <span>Juan</span><span class="foot__word--alt">Clavijo</span>
+      </p>
+
+      <nav class="foot__links" aria-label="Enlaces de contacto">
+        <a class="link-u" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a class="link-u" href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
+        <a class="link-u" href={profile.cv} target="_blank" rel="noreferrer">CV en PDF</a>
+      </nav>
+    </div>
+
+    <div class="foot__bottom">
+      <p>© {year} {profile.name} · {profile.location}</p>
+      <p class="foot__made">Diseñado y construido a mano con Astro</p>
+      <a class="foot__up" href="#inicio">
+        Volver arriba
+        <span aria-hidden="true">↑</span>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    position: relative;
+    margin-top: clamp(3rem, 8vw, 6rem);
+    padding-block: clamp(2.4rem, 5vw, 4rem) clamp(1.6rem, 3vw, 2.4rem);
+    border-top: 1px solid var(--line);
+    overflow: hidden;
+  }
+
+  .foot__top {
+    display: grid;
+    gap: 1.6rem;
+    align-items: end;
+  }
+
+  .foot__word {
+    font-family: var(--font-display);
+    font-size: clamp(3.4rem, 15vw, 11rem);
+    font-weight: 500;
+    line-height: 0.82;
+    letter-spacing: -0.055em;
+    font-variation-settings: 'opsz' 100, var(--wonk-on);
+    color: var(--ink);
+    display: grid;
+  }
+  .foot__word span {
+    display: block;
+  }
+  .foot__word--alt {
+    font-style: italic;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--line-strong);
+    padding-left: 0.12em;
+    transition: color 0.7s var(--ease-out), -webkit-text-stroke-color 0.7s var(--ease-out);
+  }
+  .foot:hover .foot__word--alt {
+    color: var(--c1);
+    -webkit-text-stroke-color: transparent;
+  }
+
+  .foot__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.6rem;
+    font-family: var(--font-alt);
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+
+  .foot__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem 1.4rem;
+    margin-top: clamp(2rem, 4vw, 3rem);
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--line);
+    font-size: var(--step--2);
+    color: var(--ink-3);
+  }
+
+  .foot__made {
+    order: 3;
+  }
+
+  .foot__up {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-alt);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--ink-2);
+    transition: color 0.35s var(--ease-out);
+  }
+  .foot__up span {
+    transition: transform 0.5s var(--ease-spring);
+  }
+  .foot__up:hover {
+    color: var(--c1);
+  }
+  .foot__up:hover span {
+    transform: translateY(-4px);
+  }
+
+  @media (min-width: 800px) {
+    .foot__top {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .foot__links {
+      justify-content: flex-end;
+      padding-bottom: 0.8rem;
+    }
+    .foot__made {
+      order: 0;
+    }
+  }
+</style>

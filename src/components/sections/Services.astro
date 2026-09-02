@@ -1,0 +1,128 @@
+---
+import type { SectionDef } from '@/config/site';
+import { services } from '@/config/site';
+import SectionHead from '@/components/SectionHead.astro';
+
+interface Props {
+  section: SectionDef;
+}
+const { section } = Astro.props;
+const accents = ['c1', 'c3', 'c2', 'c4'];
+---
+
+<section class="section services" id={section.id}>
+  <div class="shell">
+    <SectionHead
+      index={section.index}
+      eyebrow={section.eyebrow}
+      title={section.title}
+      intro={section.intro}
+    />
+
+    <ul class="svc">
+      {
+        services.map((s, i) => (
+          <li
+            class="svc__row"
+            style={`--accent: var(--${accents[i % accents.length]})`}
+            data-reveal
+            data-cursor="hot"
+          >
+            <span class="svc__wash" aria-hidden="true" />
+            <span class="svc__n mono-num">{s.n}</span>
+            <div class="svc__main">
+              <h3 class="svc__title">{s.title}</h3>
+              <p class="svc__text">{s.text}</p>
+            </div>
+            <ul class="svc__tags">
+              {s.tags.map((t) => (
+                <li class="chip">{t}</li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .svc {
+    border-top: 1px solid var(--line);
+  }
+
+  .svc__row {
+    position: relative;
+    display: grid;
+    gap: 0.5rem 1.6rem;
+    padding-block: clamp(1.6rem, 3.4vw, 2.6rem);
+    padding-inline: clamp(0.6rem, 1.6vw, 1.4rem);
+    border-bottom: 1px solid var(--line);
+    isolation: isolate;
+    transition: padding-inline 0.55s var(--ease-out);
+  }
+
+  .svc__wash {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      100deg,
+      color-mix(in oklab, var(--accent) 13%, transparent),
+      transparent 58%
+    );
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.75s var(--ease-out);
+  }
+
+  .svc__row:hover .svc__wash {
+    transform: scaleX(1);
+  }
+  .svc__row:hover {
+    padding-inline: clamp(1rem, 2.4vw, 2rem) clamp(0.6rem, 1.6vw, 1.4rem);
+  }
+
+  .svc__n {
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    padding-top: 0.55em;
+  }
+
+  .svc__title {
+    font-size: var(--step-3);
+    letter-spacing: -0.035em;
+    transition: color 0.45s var(--ease-out);
+  }
+  .svc__row:hover .svc__title {
+    color: var(--accent);
+  }
+
+  .svc__text {
+    margin-top: 0.5rem;
+    max-width: 54ch;
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+
+  .svc__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-content: start;
+    padding-top: 0.35rem;
+  }
+
+  @media (min-width: 900px) {
+    .svc__row {
+      grid-template-columns: 3.5rem minmax(0, 1.55fr) minmax(0, 0.75fr);
+      align-items: start;
+    }
+    .svc__tags {
+      justify-content: flex-end;
+      padding-top: 0.7rem;
+    }
+  }
+</style>

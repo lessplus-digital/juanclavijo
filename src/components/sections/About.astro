@@ -1,0 +1,170 @@
+---
+import type { SectionDef } from '@/config/site';
+import { profile, education, languages } from '@/config/site';
+import SectionHead from '@/components/SectionHead.astro';
+
+interface Props {
+  section: SectionDef;
+}
+const { section } = Astro.props;
+---
+
+<section class="section about" id={section.id}>
+  <div class="shell about__grid">
+    <div class="about__aside">
+      <SectionHead
+        index={section.index}
+        eyebrow={section.eyebrow}
+        title={section.title}
+        intro={section.intro}
+      />
+
+      <dl class="facts" data-reveal style="--d:220ms">
+        <div>
+          <dt>Base</dt>
+          <dd>{profile.location}</dd>
+        </div>
+        <div>
+          <dt>Trabajo con</dt>
+          <dd>España y LATAM</dd>
+        </div>
+        <div>
+          <dt>Idiomas</dt>
+          <dd>{languages.map((l) => `${l.name} (${l.level})`).join(' · ')}</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="about__body">
+      {
+        profile.bio.map((paragraph, i) => (
+          <p class={i === 0 ? 'about__first' : 'about__p'} data-reveal style={`--d:${i * 110}ms`}>
+            {paragraph}
+          </p>
+        ))
+      }
+
+      <div class="about__edu" data-reveal style="--d:260ms">
+        <h3 class="about__eduTitle">Formación</h3>
+        <ul>
+          {
+            education.map((e) => (
+              <li>
+                <span class="about__eduYear mono-num">{e.period}</span>
+                <span class="about__eduName">{e.title}</span>
+                <span class="about__eduPlace">{e.place}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about__grid {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+
+  .facts {
+    display: grid;
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+  .facts > div {
+    display: grid;
+    grid-template-columns: minmax(0, 8rem) minmax(0, 1fr);
+    gap: 1rem;
+    padding-block: 0.85rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .facts dt {
+    font-family: var(--font-alt);
+    font-size: var(--step--2);
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding-top: 0.25em;
+  }
+  .facts dd {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--ink);
+  }
+
+  .about__first {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 400;
+    line-height: 1.22;
+    letter-spacing: -0.026em;
+    font-variation-settings: 'opsz' 100, var(--wonk-on);
+    text-wrap: pretty;
+  }
+
+  .about__p {
+    margin-top: 1.4em;
+    max-width: var(--measure);
+    color: var(--ink-2);
+  }
+
+  .about__edu {
+    margin-top: clamp(2.4rem, 5vw, 3.6rem);
+    padding-top: clamp(1.6rem, 3vw, 2.2rem);
+    border-top: 1px solid var(--line);
+  }
+  .about__eduTitle {
+    font-family: var(--font-alt);
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 1.2rem;
+  }
+  .about__edu ul {
+    display: grid;
+    gap: 1.4rem;
+  }
+  .about__edu li {
+    display: grid;
+    gap: 0.15rem;
+    padding-left: 1.1rem;
+    border-left: 2px solid var(--line);
+    transition: border-color 0.45s var(--ease-out), padding-left 0.45s var(--ease-out);
+  }
+  .about__edu li:hover {
+    border-left-color: var(--c1);
+    padding-left: 1.4rem;
+  }
+  .about__eduYear {
+    font-size: var(--step--2);
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+  .about__eduName {
+    font-size: var(--step-0);
+    font-weight: 500;
+  }
+  .about__eduPlace {
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+
+  @media (min-width: 900px) {
+    .about__grid {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      align-items: start;
+    }
+    .about__aside {
+      position: sticky;
+      top: 7rem;
+    }
+    .about__edu ul {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2rem;
+    }
+  }
+</style>

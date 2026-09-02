@@ -1,0 +1,668 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   JUAN CLAVIJO — SISTEMA DE DISEÑO
+   Tokens, tipografía, primitivas y animaciones compartidas.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@import '@fontsource-variable/fraunces/full.css';
+@import '@fontsource-variable/outfit/index.css';
+@import '@fontsource-variable/bricolage-grotesque/standard.css';
+
+/* ── 1. Tokens ────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Tipografías */
+  --font-display: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'Outfit Variable', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+  --font-alt: 'Bricolage Grotesque Variable', var(--font-sans);
+
+  /* Ejes variables de Fraunces: suave y con "wonk" (asimetría deliberada) */
+  --wonk-on: 'SOFT' 100, 'WONK' 1;
+  --wonk-off: 'SOFT' 0, 'WONK' 0;
+
+  /* Escala fluida */
+  --step--2: clamp(0.69rem, 0.67rem + 0.11vw, 0.75rem);
+  --step--1: clamp(0.83rem, 0.79rem + 0.19vw, 0.94rem);
+  --step-0: clamp(1rem, 0.94rem + 0.3vw, 1.19rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.48vw, 1.5rem);
+  --step-2: clamp(1.44rem, 1.29rem + 0.74vw, 1.9rem);
+  --step-3: clamp(1.73rem, 1.5rem + 1.13vw, 2.4rem);
+  --step-4: clamp(2.07rem, 1.74rem + 1.68vw, 3.03rem);
+  --step-5: clamp(2.49rem, 2rem + 2.45vw, 3.82rem);
+  --step-6: clamp(2.99rem, 2.29rem + 3.5vw, 4.83rem);
+  --step-7: clamp(3.58rem, 2.59rem + 4.96vw, 6.1rem);
+
+  /* Ritmo */
+  --gutter: clamp(1.25rem, 4vw, 3.5rem);
+  --measure: 62ch;
+  --shell: 1320px;
+  --radius: 18px;
+  --radius-lg: 30px;
+
+  /* Movimiento */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-io: cubic-bezier(0.65, 0.05, 0.36, 1);
+
+  color-scheme: light;
+}
+
+/* Paleta clara (por defecto) */
+:root,
+:root[data-theme='light'] {
+  --bg: #f2eee6;
+  --bg-2: #faf7f1;
+  --bg-3: #ebe5d9;
+  --ink: #14120f;
+  --ink-2: #4a443c;
+  --ink-3: #877e70;
+  --line: rgb(20 18 15 / 0.13);
+  --line-strong: rgb(20 18 15 / 0.28);
+
+  --c1: #db4c24; /* arcilla */
+  --c2: #1f5c46; /* musgo  */
+  --c3: #4a3fd9; /* iris   */
+  --c4: #e0a92c; /* mantequilla */
+
+  --on-accent: #fff8f0;
+  --glow: 0.42;
+  --grain: 0.055;
+  --shadow-soft: 0 1px 2px rgb(20 18 15 / 0.04), 0 12px 34px -18px rgb(20 18 15 / 0.28);
+  --shadow-lift: 0 2px 6px rgb(20 18 15 / 0.06), 0 34px 60px -30px rgb(20 18 15 / 0.4);
+  color-scheme: light;
+}
+
+/* Paleta oscura */
+:root[data-theme='dark'] {
+  --bg: #0c0b0a;
+  --bg-2: #141211;
+  --bg-3: #1c1917;
+  --ink: #f0eae0;
+  --ink-2: #b6ac9e;
+  --ink-3: #7c7365;
+  --line: rgb(240 234 224 / 0.14);
+  --line-strong: rgb(240 234 224 / 0.3);
+
+  --c1: #ff6a3d;
+  --c2: #45be92;
+  --c3: #8b80ff;
+  --c4: #f3cb63;
+
+  --on-accent: #14100c;
+  --glow: 0.3;
+  --grain: 0.09;
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.5), 0 14px 34px -18px rgb(0 0 0 / 0.8);
+  --shadow-lift: 0 2px 8px rgb(0 0 0 / 0.55), 0 40px 70px -34px rgb(0 0 0 / 0.9);
+  color-scheme: dark;
+}
+
+/* Sin elección explícita seguimos al sistema */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0c0b0a;
+    --bg-2: #141211;
+    --bg-3: #1c1917;
+    --ink: #f0eae0;
+    --ink-2: #b6ac9e;
+    --ink-3: #7c7365;
+    --line: rgb(240 234 224 / 0.14);
+    --line-strong: rgb(240 234 224 / 0.3);
+    --c1: #ff6a3d;
+    --c2: #45be92;
+    --c3: #8b80ff;
+    --c4: #f3cb63;
+    --on-accent: #14100c;
+    --glow: 0.3;
+    --grain: 0.09;
+    --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.5), 0 14px 34px -18px rgb(0 0 0 / 0.8);
+    --shadow-lift: 0 2px 8px rgb(0 0 0 / 0.55), 0 40px 70px -34px rgb(0 0 0 / 0.9);
+    color-scheme: dark;
+  }
+}
+
+/* ── 2. Reset ─────────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scrollbar-color: var(--ink-3) transparent;
+}
+
+body {
+  min-height: 100svh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  font-weight: 380;
+  line-height: 1.62;
+  letter-spacing: -0.006em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+  transition: background-color 0.5s var(--ease-out), color 0.5s var(--ease-out);
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+ul,
+ol {
+  list-style: none;
+  padding: 0;
+}
+
+::selection {
+  background: var(--c1);
+  color: var(--on-accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--c3);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* ── 3. Tipografía ────────────────────────────────────────────────────────── */
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  font-variation-settings: 'opsz' 100, var(--wonk-on);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--step-7);
+}
+h2 {
+  font-size: var(--step-5);
+}
+h3 {
+  font-size: var(--step-3);
+  line-height: 1.05;
+}
+h4 {
+  font-size: var(--step-1);
+  line-height: 1.2;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+.lead {
+  font-size: var(--step-1);
+  line-height: 1.5;
+  color: var(--ink-2);
+  max-width: var(--measure);
+}
+
+.eyebrow {
+  font-family: var(--font-alt);
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.mono-num {
+  font-family: var(--font-alt);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'ss01';
+}
+
+/* ── 4. Layout ────────────────────────────────────────────────────────────── */
+
+.shell {
+  width: min(100% - var(--gutter) * 2, var(--shell));
+  margin-inline: auto;
+}
+
+.section {
+  position: relative;
+  padding-block: clamp(5rem, 11vw, 9.5rem);
+}
+
+.section + .section {
+  padding-top: 0;
+}
+
+.rule {
+  height: 1px;
+  background: var(--line);
+  border: 0;
+}
+
+/* ── 5. Textura: grano + malla de color ───────────────────────────────────── */
+
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 60;
+  pointer-events: none;
+  opacity: var(--grain);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-shift 7s steps(6) infinite;
+  will-change: transform;
+  mix-blend-mode: var(--grain-blend, multiply);
+}
+
+:root[data-theme='dark'] .grain {
+  --grain-blend: screen;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .grain {
+    --grain-blend: screen;
+  }
+}
+
+@keyframes grain-shift {
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-3%, 2%);
+  }
+  40% {
+    transform: translate(2%, -4%);
+  }
+  60% {
+    transform: translate(-2%, -2%);
+  }
+  80% {
+    transform: translate(3%, 3%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: clip;
+  contain: strict;
+}
+
+.aurora span {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(clamp(60px, 9vw, 120px));
+  opacity: var(--glow);
+  will-change: transform;
+}
+
+.aurora span:nth-child(1) {
+  width: 46vmax;
+  height: 46vmax;
+  left: -12vmax;
+  top: -14vmax;
+  background: var(--c1);
+  animation: drift-a 26s var(--ease-io) infinite alternate;
+}
+.aurora span:nth-child(2) {
+  width: 38vmax;
+  height: 38vmax;
+  right: -10vmax;
+  top: 18vh;
+  background: var(--c3);
+  animation: drift-b 32s var(--ease-io) infinite alternate;
+}
+.aurora span:nth-child(3) {
+  width: 34vmax;
+  height: 34vmax;
+  left: 34%;
+  bottom: -16vmax;
+  background: var(--c2);
+  animation: drift-c 38s var(--ease-io) infinite alternate;
+}
+.aurora span:nth-child(4) {
+  width: 24vmax;
+  height: 24vmax;
+  right: 22%;
+  bottom: 8vh;
+  background: var(--c4);
+  animation: drift-b 29s var(--ease-io) infinite alternate-reverse;
+}
+
+@keyframes drift-a {
+  to {
+    transform: translate3d(18vw, 12vh, 0) scale(1.25);
+  }
+}
+@keyframes drift-b {
+  to {
+    transform: translate3d(-16vw, 16vh, 0) scale(0.82);
+  }
+}
+@keyframes drift-c {
+  to {
+    transform: translate3d(12vw, -18vh, 0) scale(1.18);
+  }
+}
+
+/* ── 6. Botones y enlaces ─────────────────────────────────────────────────── */
+
+.btn {
+  --btn-bg: var(--ink);
+  --btn-fg: var(--bg);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: 0.9em 1.5em;
+  border-radius: 999px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-family: var(--font-alt);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.4s var(--ease-spring), box-shadow 0.4s var(--ease-out);
+  box-shadow: var(--shadow-soft);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--c1);
+  transform: translateY(101%);
+  transition: transform 0.5s var(--ease-out);
+}
+
+.btn:hover::before,
+.btn:focus-visible::before {
+  transform: translateY(0);
+}
+
+.btn:hover,
+.btn:focus-visible {
+  color: var(--on-accent);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+}
+
+.btn--ghost {
+  --btn-bg: transparent;
+  --btn-fg: var(--ink);
+  border: 1px solid var(--line-strong);
+  box-shadow: none;
+}
+
+.btn .arrow {
+  transition: transform 0.45s var(--ease-spring);
+}
+.btn:hover .arrow {
+  transform: translate(3px, -3px);
+}
+
+/* Enlace con subrayado que se dibuja */
+.link-u {
+  position: relative;
+  display: inline-block;
+  color: var(--ink);
+}
+.link-u::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -0.08em;
+  width: 100%;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.45s var(--ease-out);
+}
+.link-u:hover::after,
+.link-u:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Etiqueta / chip */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.34em 0.8em;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--bg-2) 70%, transparent);
+  font-family: var(--font-alt);
+  font-size: var(--step--2);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--ink-2);
+  white-space: nowrap;
+  transition: border-color 0.3s var(--ease-out), color 0.3s var(--ease-out),
+    transform 0.3s var(--ease-spring);
+}
+.chip:hover {
+  border-color: var(--c1);
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
+/* Tarjeta base con textura de vidrio suave */
+.card {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--bg-2) 78%, transparent);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  overflow: hidden;
+  transition: border-color 0.5s var(--ease-out), transform 0.6s var(--ease-out),
+    box-shadow 0.6s var(--ease-out);
+}
+
+/* ── 7. Revelado al hacer scroll ──────────────────────────────────────────── */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 26px, 0);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+
+[data-reveal='mask'] {
+  transform: none;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1.05s var(--ease-out), opacity 0.6s var(--ease-out);
+}
+
+[data-reveal='scale'] {
+  transform: translate3d(0, 30px, 0) scale(0.965);
+}
+
+[data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 0 0);
+}
+
+/* Revelado línea a línea del titular */
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+  margin-bottom: -0.06em;
+}
+.line-mask > span {
+  display: block;
+  transform: translateY(105%) rotate(2.4deg);
+  transform-origin: left top;
+  transition: transform 1.15s var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+.is-in .line-mask > span,
+.line-mask.is-in > span {
+  transform: none;
+}
+
+/* ── 8. Utilidades ────────────────────────────────────────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 200;
+  padding: 0.6em 1.1em;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  transform: translateY(-160%);
+  transition: transform 0.3s var(--ease-out);
+}
+.skip:focus {
+  transform: none;
+}
+
+.txt-c1 {
+  color: var(--c1);
+}
+.txt-c2 {
+  color: var(--c2);
+}
+.txt-c3 {
+  color: var(--c3);
+}
+
+.italic-wonk {
+  font-style: italic;
+  font-variation-settings: 'opsz' 100, 'SOFT' 100, 'WONK' 1;
+}
+
+/* ── 9. Transiciones de vista ─────────────────────────────────────────────── */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: vt-out 0.32s var(--ease-out) both;
+}
+::view-transition-new(root) {
+  animation: vt-in 0.45s var(--ease-out) both;
+}
+
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* Cambio de tema: círculo que se expande desde el interruptor */
+::view-transition-old(theme),
+::view-transition-new(theme) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html.theme-swap::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+html.theme-swap::view-transition-new(root) {
+  animation: theme-reveal 0.62s var(--ease-out) both;
+  z-index: 2;
+}
+
+@keyframes theme-reveal {
+  from {
+    clip-path: circle(0% at var(--tx, 50%) var(--ty, 50%));
+  }
+  to {
+    clip-path: circle(150% at var(--tx, 50%) var(--ty, 50%));
+  }
+}
+
+/* ── 10. Accesibilidad de movimiento ──────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-reveal],
+  .line-mask > span {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+  .grain,
+  .aurora {
+    animation: none;
+  }
+}

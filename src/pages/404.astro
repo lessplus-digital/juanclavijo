@@ -1,0 +1,60 @@
+---
+import Base from '@/layouts/Base.astro';
+---
+
+<Base title="Página no encontrada — Juan Clavijo" compactNav>
+  <section class="nf">
+    <div class="shell">
+      <p class="nf__code mono-num">404</p>
+      <h1 class="nf__title">
+        <span class="line-mask"><span>Esta ruta</span></span>
+        <span class="line-mask"><span class="italic-wonk txt-c1">no existe</span></span>
+      </h1>
+      <p class="lead nf__lead">
+        El enlace está roto o la página se movió. Nada grave: el portafolio sigue donde estaba.
+      </p>
+      <a class="btn" href="/" data-magnetic>Volver al inicio</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    min-height: 82svh;
+    display: grid;
+    align-content: center;
+    padding-top: 8rem;
+  }
+  .nf__code {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: var(--ink-3);
+    margin-bottom: 1rem;
+  }
+  .nf__title {
+    font-size: clamp(2.8rem, 11vw, 7rem);
+    letter-spacing: -0.045em;
+  }
+  .nf__title .line-mask > span {
+    transform: translateY(105%);
+    animation: nf-up 1s var(--ease-out) both;
+  }
+  .nf__title .line-mask:last-child > span {
+    animation-delay: 0.12s;
+  }
+  @keyframes nf-up {
+    to {
+      transform: none;
+    }
+  }
+  .nf__lead {
+    margin-block: 1.4rem 2.2rem;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nf__title .line-mask > span {
+      animation: none;
+      transform: none;
+    }
+  }
+</style>

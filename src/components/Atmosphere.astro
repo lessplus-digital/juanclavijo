@@ -1,0 +1,47 @@
+---
+/**
+ * Fondo vivo: malla de color a la deriva + grano de película.
+ * Todo es decorativo, no lleva contenido semántico.
+ */
+---
+
+<div class="aurora" aria-hidden="true">
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
+<div class="grain" aria-hidden="true"></div>
+
+<script>
+  // La malla reacciona muy sutilmente al puntero: da sensación de profundidad
+  // sin que se note el truco.
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = window.matchMedia('(pointer: fine)').matches;
+  if (!reduce && fine) {
+    const layer = document.querySelector<HTMLElement>('.aurora');
+    if (layer) {
+      let tx = 0,
+        ty = 0,
+        cx = 0,
+        cy = 0,
+        raf = 0;
+      const loop = () => {
+        cx += (tx - cx) * 0.045;
+        cy += (ty - cy) * 0.045;
+        layer.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
+        raf = Math.abs(tx - cx) > 0.1 || Math.abs(ty - cy) > 0.1 ? requestAnimationFrame(loop) : 0;
+      };
+      addEventListener(
+        'pointermove',
+        (e) => {
+          tx = (e.clientX / innerWidth - 0.5) * 46;
+          ty = (e.clientY / innerHeight - 0.5) * 46;
+          if (!raf) raf = requestAnimationFrame(loop);
+        },
+        { passive: true },
+      );
+    }
+  }
+</script>

@@ -1,0 +1,64 @@
+---
+import { getCollection } from 'astro:content';
+import type { SectionDef } from '@/config/site';
+import SectionHead from '@/components/SectionHead.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+
+interface Props {
+  section: SectionDef;
+}
+const { section } = Astro.props;
+
+const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+<section class="section projects" id={section.id}>
+  <div class="shell">
+    <SectionHead
+      index={section.index}
+      eyebrow={section.eyebrow}
+      title={section.title}
+      intro={section.intro}
+    />
+
+    <div class="projects__grid">
+      {projects.map((project, i) => <ProjectCard project={project} index={i} />)}
+    </div>
+
+    {
+      projects.length === 0 && (
+        <p class="projects__empty">
+          Añade un archivo en <code>src/content/projects/</code> para publicar tu primer caso.
+        </p>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .projects__grid {
+    display: grid;
+    gap: clamp(1rem, 2.2vw, 1.6rem);
+  }
+
+  .projects__empty {
+    padding: 3rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    color: var(--ink-3);
+  }
+  .projects__empty code {
+    font-family: var(--font-alt);
+    font-size: 0.9em;
+    color: var(--c1);
+  }
+
+  @media (min-width: 860px) {
+    .projects__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>
