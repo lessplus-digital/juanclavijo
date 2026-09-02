@@ -127,9 +127,10 @@ const { section } = Astro.props;
       padding-top: 3rem;
     }
     .proc__rail {
+      /* +15px: el riel pasa por el centro de los puntos, no por su borde */
       left: 15px;
       right: 15px;
-      top: 3rem;
+      top: calc(3rem + 15px);
       bottom: auto;
       width: auto;
       height: 1px;

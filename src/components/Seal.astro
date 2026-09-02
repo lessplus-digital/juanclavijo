@@ -7,7 +7,10 @@ import { profile } from '@/config/site';
  * Con foto → la imagen recortada en una forma orgánica dentro del mismo anillo.
  * Se controla con `profile.photo` en src/config/site.ts
  */
+// El texto se estira exactamente a la circunferencia del círculo (r=78 → ~490)
+// con textLength, para que dé una vuelta justa y nunca se solape consigo mismo.
 const ring = 'DESARROLLADOR FULL STACK · MEDELLÍN → MADRID · ';
+const RING_LENGTH = 490;
 ---
 
 <figure class="seal" data-cursor="hot">
@@ -19,7 +22,11 @@ const ring = 'DESARROLLADOR FULL STACK · MEDELLÍN → MADRID · ';
         fill="none"></path>
     </defs>
     <text>
-      <textPath href="#seal-path" startOffset="0">{ring + ring}</textPath>
+      <textPath
+        href="#seal-path"
+        startOffset="0"
+        textLength={RING_LENGTH}
+        lengthAdjust="spacing">{ring}</textPath>
     </text>
   </svg>
 
@@ -94,16 +101,29 @@ const ring = 'DESARROLLADOR FULL STACK · MEDELLÍN → MADRID · ';
     will-change: border-radius, transform;
   }
   .blob--a {
-    background: linear-gradient(150deg, var(--c1), var(--c4));
+    background: conic-gradient(
+      from 210deg,
+      var(--c1),
+      var(--c4) 32%,
+      var(--c2) 58%,
+      var(--c3) 78%,
+      var(--c1)
+    );
+    filter: blur(14px);
     animation: morph 14s var(--ease-io) infinite alternate;
-    opacity: 0.92;
+    opacity: 0.62;
   }
   .blob--b {
-    inset: 12%;
-    background: linear-gradient(320deg, var(--c3), var(--c2));
-    mix-blend-mode: overlay;
-    animation: morph 11s var(--ease-io) infinite alternate-reverse;
-    opacity: 0.75;
+    inset: 18%;
+    background: radial-gradient(
+      circle at 34% 30%,
+      color-mix(in oklab, var(--bg-2) 92%, transparent),
+      color-mix(in oklab, var(--bg-2) 55%, transparent) 62%,
+      transparent 78%
+    );
+    filter: blur(1px);
+    animation: morph 11s var(--ease-io) -4s infinite alternate-reverse;
+    opacity: 0.9;
   }
 
   @keyframes morph {
@@ -129,9 +149,8 @@ const ring = 'DESARROLLADOR FULL STACK · MEDELLÍN → MADRID · ';
     font-weight: 500;
     font-style: italic;
     letter-spacing: -0.05em;
-    color: var(--bg);
+    color: var(--ink);
     font-variation-settings: 'opsz' 100, 'SOFT' 100, 'WONK' 1;
-    mix-blend-mode: hard-light;
     transition: transform 0.8s var(--ease-spring);
   }
   .seal:hover .seal__mono {

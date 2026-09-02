@@ -148,6 +148,13 @@ const links = sections.filter((s) => s.enabled && s.nav);
     letter-spacing: 0.11em;
     text-transform: uppercase;
     color: var(--ink-3);
+    white-space: nowrap;
+  }
+  /* En móviles estrechos el cargo partía la barra en dos líneas */
+  @media (max-width: 460px) {
+    .brand__text i {
+      display: none;
+    }
   }
 
   /* Enlaces de escritorio */

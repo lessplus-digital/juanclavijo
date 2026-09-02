@@ -1,6 +1,15 @@
-node_modules/
-.env
-.env.local
+# build
 dist/
-build/
+.astro/
+
+# dependencias
+node_modules/
+
+# entorno
+.env
+.env.production
+
+# sistema
 .DS_Store
+Thumbs.db
+*.log

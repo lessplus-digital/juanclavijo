@@ -8,7 +8,7 @@ const lines = profile.headline.split(' / ');
 <section class="hero" id="inicio">
   <div class="shell hero__grid">
     <div class="hero__text">
-      <p class="hero__status" data-reveal style="--d:80ms">
+      <p class="hero__status rise" style="--d:80ms">
         <span class="dot" aria-hidden="true"></span>
         {profile.availability} · {profile.location}
       </p>
@@ -23,9 +23,9 @@ const lines = profile.headline.split(' / ');
         }
       </h1>
 
-      <p class="lead hero__lead" data-reveal style="--d:520ms">{profile.tagline}</p>
+      <p class="lead hero__lead rise" style="--d:520ms">{profile.tagline}</p>
 
-      <div class="hero__actions" data-reveal style="--d:620ms">
+      <div class="hero__actions rise" style="--d:620ms">
         <a class="btn" href="#projects" data-magnetic>
           Ver proyectos
           <svg class="arrow" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
@@ -53,7 +53,7 @@ const lines = profile.headline.split(' / ');
       </div>
     </div>
 
-    <div class="hero__seal" data-reveal="scale" style="--d:420ms">
+    <div class="hero__seal rise" style="--d:420ms">
       <Seal />
     </div>
   </div>
@@ -62,7 +62,7 @@ const lines = profile.headline.split(' / ');
     <ul class="metrics">
       {
         metrics.map((m, i) => (
-          <li data-reveal style={`--d:${680 + i * 90}ms`}>
+          <li class="rise" style={`--d:${680 + i * 90}ms`}>
             <b class="mono-num">{m.value}</b>
             <span>{m.label}</span>
           </li>
@@ -177,12 +177,27 @@ const lines = profile.headline.split(' / ');
     justify-self: center;
   }
 
+  /* Entrada al cargar: el héroe no espera al scroll */
+  .rise {
+    animation: rise-in 0.95s var(--ease-out) both;
+    animation-delay: var(--d, 0ms);
+  }
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 22px, 0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rise {
+      animation: none;
+    }
+  }
+
   /* Cifras */
   .metrics {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
-    background: var(--line);
     border-block: 1px solid var(--line);
   }
   .metrics li {
@@ -190,8 +205,14 @@ const lines = profile.headline.split(' / ');
     gap: 0.15rem;
     align-content: start;
     padding: clamp(1rem, 2.4vw, 1.6rem) clamp(0.9rem, 2vw, 1.4rem);
-    background: var(--bg);
+    border-bottom: 1px solid var(--line);
     transition: background-color 0.45s var(--ease-out);
+  }
+  .metrics li:nth-child(odd) {
+    border-right: 1px solid var(--line);
+  }
+  .metrics li:nth-last-child(-n + 2) {
+    border-bottom: 0;
   }
   .metrics li:hover {
     background: var(--bg-2);
@@ -222,11 +243,14 @@ const lines = profile.headline.split(' / ');
     line-height: 1.35;
   }
 
-  /* Indicador de scroll */
+  /* Indicador de scroll.
+     Vive en el margen exterior, fuera de .shell: si se ancla al borde inferior
+     acaba encima de la última cifra. */
   .scroll-hint {
     position: absolute;
-    right: var(--gutter);
-    bottom: clamp(1rem, 3vw, 2rem);
+    right: max(0.5rem, calc((100% - var(--shell)) / 2 - 1.9rem));
+    top: 50%;
+    transform: translateY(-50%);
     display: none;
     align-items: center;
     gap: 0.7rem;
@@ -266,6 +290,16 @@ const lines = profile.headline.split(' / ');
     .metrics {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
+    .metrics li {
+      border-bottom: 0;
+      border-right: 1px solid var(--line);
+    }
+    .metrics li:last-child {
+      border-right: 0;
+    }
+  }
+
+  @media (min-width: 900px) {
     .scroll-hint {
       display: flex;
     }
