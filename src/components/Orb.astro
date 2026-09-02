@@ -1,0 +1,324 @@
+---
+/**
+ * Campo de blobs líquidos del hero.
+ *
+ * Seis masas de distinto tamaño comparten `filter: url(#orb-goo)`: al
+ * acercarse, sus siluetas se estiran y se funden. El filtro solo toca el canal
+ * alfa (última fila de feColorMatrix), así que cada masa conserva su degradado.
+ *
+ * El puntero las desplaza con paralaje: cada masa tiene su propia
+ * profundidad, así que las pequeñas se mueven más y el grupo gana volumen.
+ * Ese desplazamiento va en la propiedad `translate`, INDEPENDIENTE del
+ * `transform` que animan los keyframes: las dos se componen sin pisarse.
+ *
+ * Lo que NO se toca es la duración de una animación en marcha. Una versión
+ * anterior la aceleraba al pasar el ratón y el bucle pegaba un salto feo; la
+ * rotación 3D que llevaba entonces además dejaba una costura visible.
+ *
+ * En bucle solo se animan transform, translate y border-radius, y el filtro no
+ * cambia de parámetros: no hay nada que recalcular por fotograma.
+ */
+
+// Cada masa lleva su luz en la misma esquina (32% 28%) para que el grupo se
+// lea con una sola dirección de iluminación.
+const blobs = [
+  { cls: 'b1', from: 'var(--c4)', to: 'var(--c1)' },
+  { cls: 'b2', from: 'var(--c1)', to: 'var(--c3)' },
+  { cls: 'b3', from: 'var(--c4)', to: 'var(--c1)' },
+  { cls: 'b4', from: 'var(--c1)', to: 'var(--c3)' },
+  { cls: 'b5', from: 'var(--c4)', to: 'var(--c1)' },
+  { cls: 'b6', from: 'var(--c1)', to: 'var(--c4)' },
+];
+---
+
+<div class="orb" aria-hidden="true">
+  {/* El filtro de fusión vive aquí, sin ocupar espacio */}
+  <svg class="orb__defs" viewBox="0 0 0 0">
+    <defs>
+      <filter id="orb-goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur"></feGaussianBlur>
+        <feColorMatrix
+          in="blur"
+          type="matrix"
+          values="1 0 0 0 0
+                  0 1 0 0 0
+                  0 0 1 0 0
+                  0 0 0 19 -8"></feColorMatrix>
+      </filter>
+    </defs>
+  </svg>
+
+  <span class="orb__glow"></span>
+
+  <div class="orb__field">
+    {
+      blobs.map((b) => (
+        <span
+          class:list={['blob', b.cls]}
+          style={`--from: color-mix(in oklab, ${b.from} 88%, white); --to: ${b.to}`}
+        />
+      ))
+    }
+  </div>
+
+  <span class="orb__sheen"></span>
+</div>
+
+<style>
+  .orb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    isolation: isolate;
+  }
+
+  .orb__defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+
+  /* Halo ambiental: sostiene el grupo sin dibujar bordes */
+  .orb__glow {
+    position: absolute;
+    inset: 6%;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 200deg,
+      var(--c1),
+      var(--c4) 28%,
+      var(--c2) 54%,
+      var(--c3) 78%,
+      var(--c1)
+    );
+    filter: blur(46px);
+    opacity: 0.34;
+    animation: glow-turn 28s linear infinite;
+  }
+  @keyframes glow-turn {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .orb__field {
+    position: absolute;
+    inset: 0;
+    filter: url(#orb-goo);
+  }
+
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, var(--from) 0%, var(--to) 88%);
+    /* Independiente del transform de los keyframes: se componen, no se pisan */
+    translate: calc(var(--mx, 0) * var(--depth) * 1px) calc(var(--my, 0) * var(--depth) * 1px);
+    will-change: transform, translate;
+  }
+
+  /* Reparto por todo el contenedor, no dos bultos a los lados */
+  .b1 {
+    width: 54%;
+    height: 54%;
+    left: 20%;
+    top: 16%;
+    --depth: 1;
+    animation: float-1 21s ease-in-out infinite;
+  }
+  .b2 {
+    width: 46%;
+    height: 46%;
+    left: 40%;
+    top: 38%;
+    --depth: 1.35;
+    animation: float-2 25s ease-in-out infinite;
+  }
+  .b3 {
+    width: 34%;
+    height: 34%;
+    left: 11%;
+    top: 42%;
+    --depth: 1.75;
+    animation: float-3 18s ease-in-out infinite;
+  }
+  .b4 {
+    width: 31%;
+    height: 31%;
+    left: 54%;
+    top: 12%;
+    --depth: 2.05;
+    animation: float-4 23s ease-in-out infinite;
+  }
+  .b5 {
+    width: 26%;
+    height: 26%;
+    left: 32%;
+    top: 62%;
+    --depth: 2.45;
+    animation: float-5 19s ease-in-out infinite;
+  }
+  .b6 {
+    width: 21%;
+    height: 21%;
+    left: 62%;
+    top: 56%;
+    --depth: 2.9;
+    animation: float-6 22s ease-in-out infinite;
+  }
+
+  /*
+    Tres paradas por vuelta en lugar de una ida y vuelta: el recorrido no se
+    repite sobre sus pasos y el conjunto parece deambular. Amplitudes de 14 a
+    22%: se nota el movimiento sin que llegue a sentirse brusco.
+  */
+  @keyframes float-1 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+      border-radius: 54% 46% 48% 52% / 47% 52% 48% 53%;
+    }
+    34% {
+      transform: translate(-13%, 9%) scale(1.1);
+      border-radius: 43% 57% 59% 41% / 58% 43% 57% 42%;
+    }
+    67% {
+      transform: translate(6%, 15%) scale(0.93);
+      border-radius: 58% 42% 40% 60% / 42% 59% 41% 58%;
+    }
+  }
+  @keyframes float-2 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+      border-radius: 48% 52% 55% 45% / 53% 47% 53% 47%;
+    }
+    33% {
+      transform: translate(15%, -12%) scale(0.9);
+      border-radius: 59% 41% 42% 58% / 41% 60% 40% 59%;
+    }
+    66% {
+      transform: translate(-9%, -17%) scale(1.12);
+      border-radius: 44% 56% 58% 42% / 57% 44% 56% 43%;
+    }
+  }
+  @keyframes float-3 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    35% {
+      transform: translate(17%, -16%) scale(1.16);
+    }
+    70% {
+      transform: translate(21%, 12%) scale(0.88);
+    }
+  }
+  @keyframes float-4 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    30% {
+      transform: translate(-18%, 19%) scale(1.14);
+    }
+    65% {
+      transform: translate(-6%, 9%) scale(0.9);
+    }
+  }
+  @keyframes float-5 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    32% {
+      transform: translate(20%, -14%) scale(0.87);
+    }
+    68% {
+      transform: translate(-11%, -21%) scale(1.18);
+    }
+  }
+  @keyframes float-6 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    36% {
+      transform: translate(-22%, -18%) scale(1.2);
+    }
+    72% {
+      transform: translate(9%, -8%) scale(0.86);
+    }
+  }
+
+  /* Luz de arriba, fuera del filtro: dentro se difumina y todo queda plano */
+  .orb__sheen {
+    position: absolute;
+    inset: 8%;
+    border-radius: 50%;
+    background: radial-gradient(58% 52% at 33% 26%, rgb(255 255 255 / 0.5) 0%, transparent 62%),
+      radial-gradient(76% 70% at 72% 84%, rgb(34 8 0 / 0.34) 0%, transparent 62%);
+    filter: blur(18px);
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orb__glow,
+    .blob {
+      animation: none;
+    }
+    .blob {
+      translate: none;
+    }
+  }
+</style>
+
+<script>
+  const orb = document.querySelector<HTMLElement>('.orb');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (orb && !reduce && matchMedia('(pointer: fine)').matches) {
+    // Alcance del paralaje en píxeles, antes de multiplicar por --depth.
+    const REACH = 20;
+    // Cuánto se acerca cada fotograma al objetivo: bajo = arranque y frenada
+    // suaves, sin tirones al entrar o salir el puntero.
+    const EASE = 0.055;
+
+    let tx = 0;
+    let ty = 0;
+    let cx = 0;
+    let cy = 0;
+    let raf = 0;
+
+    const tick = () => {
+      cx += (tx - cx) * EASE;
+      cy += (ty - cy) * EASE;
+      orb.style.setProperty('--mx', cx.toFixed(2));
+      orb.style.setProperty('--my', cy.toFixed(2));
+
+      // Se apaga sola al llegar: no deja un rAF girando en vacío.
+      raf = Math.abs(tx - cx) > 0.05 || Math.abs(ty - cy) > 0.05 ? requestAnimationFrame(tick) : 0;
+    };
+
+    const wake = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
+    addEventListener(
+      'pointermove',
+      (e) => {
+        tx = (e.clientX / innerWidth - 0.5) * 2 * REACH;
+        ty = (e.clientY / innerHeight - 0.5) * 2 * REACH;
+        wake();
+      },
+      { passive: true },
+    );
+
+    // Al salir del documento las masas vuelven a su sitio, también con calma.
+    document.addEventListener('pointerleave', () => {
+      tx = 0;
+      ty = 0;
+      wake();
+    });
+  }
+</script>

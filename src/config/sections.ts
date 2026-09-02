@@ -3,8 +3,6 @@ import type { SectionId } from '@/config/site';
 import About from '@/components/sections/About.astro';
 import Projects from '@/components/sections/Projects.astro';
 import Services from '@/components/sections/Services.astro';
-import Process from '@/components/sections/Process.astro';
-import Experience from '@/components/sections/Experience.astro';
 import Stack from '@/components/sections/Stack.astro';
 import Contact from '@/components/sections/Contact.astro';
 
@@ -22,8 +20,6 @@ export const registry = {
   about: About,
   projects: Projects,
   services: Services,
-  process: Process,
-  experience: Experience,
   stack: Stack,
   contact: Contact,
 } satisfies Record<SectionId, unknown>;

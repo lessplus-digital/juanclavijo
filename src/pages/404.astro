@@ -1,5 +1,6 @@
 ---
 import Base from '@/layouts/Base.astro';
+import Btn from '@/components/Btn.astro';
 ---
 
 <Base title="Página no encontrada — Juan Clavijo" compactNav>
@@ -8,12 +9,12 @@ import Base from '@/layouts/Base.astro';
       <p class="nf__code mono-num">404</p>
       <h1 class="nf__title">
         <span class="line-mask"><span>Esta ruta</span></span>
-        <span class="line-mask"><span class="italic-wonk txt-c1">no existe</span></span>
+        <span class="line-mask"><span class="italic-accent txt-c1">no existe</span></span>
       </h1>
       <p class="lead nf__lead">
         El enlace está roto o la página se movió. Nada grave: el portafolio sigue donde estaba.
       </p>
-      <a class="btn" href="/" data-magnetic>Volver al inicio</a>
+      <Btn href="/" label="Volver al inicio" />
     </div>
   </section>
 </Base>

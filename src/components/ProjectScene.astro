@@ -1,0 +1,72 @@
+---
+/**
+ * Escena de una tarjeta de portafolio.
+ *
+ * Solo los proyectos con `layout: scene` llegan aquí. Esto elige la maqueta y
+ * monta el escenario común; una web terminada se cuenta con su captura
+ * (ProjectShot), no con una animación inventada.
+ *
+ * EL ESCENARIO ES UN CONTENEDOR DE CONSULTA y fija su `font-size` con
+ * `max(cqw, cqh)`: dentro de las escenas TODO se mide en `em`, así que la
+ * maqueta entera escala con la tarjeta sin un solo punto de quiebre. Si mides
+ * algo en `px` dentro de una escena, se romperá en móvil.
+ *
+ * Las escenas están dibujadas sobre un lienzo fijo de 52.63 × 42.1em
+ * (relación 10/8). El `max()` hace que ese lienzo SIEMPRE cubra el hueco: si
+ * el panel se desviara de 10/8, sobra por un lado y se recorta, en vez de
+ * dejar franjas vacías. El panel ya lleva `aspect-ratio: 10/8`, así que en la
+ * práctica encaja al milímetro; el `max()` es el seguro.
+ */
+import SceneChat from '@/components/scenes/SceneChat.astro';
+import SceneSimulator from '@/components/scenes/SceneSimulator.astro';
+
+interface Props {
+  scene: 'chat' | 'simulator';
+}
+const { scene } = Astro.props;
+---
+
+<div class="scene" aria-hidden="true">
+  <div class="scene__box">
+    {scene === 'chat' && <SceneChat />}
+    {scene === 'simulator' && <SceneSimulator />}
+  </div>
+</div>
+
+<style>
+  .scene {
+    position: absolute;
+    inset: 0;
+    /* `size` y no `inline-size`: hace falta cqh además de cqw. */
+    container-type: size;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    line-height: 1.35;
+  }
+
+  .scene__box {
+    position: relative;
+    /* Lienzo fijo: 52.63em de ancho por 42.1em de alto. */
+    width: 52.63em;
+    height: 42.1em;
+    font-size: max(1.9cqw, 2.375cqh);
+  }
+</style>
+
+<script>
+  // Las escenas son bucles infinitos de CSS. Se pausan mientras no se ven:
+  // cuatro maquetas animadas a la vez fuera de pantalla no valen la batería.
+  const roots = document.querySelectorAll<HTMLElement>('[data-scene-root]');
+  if (roots.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          (e.target as HTMLElement).toggleAttribute('data-live', e.isIntersecting);
+        }
+      },
+      { rootMargin: '120px 0px' },
+    );
+    roots.forEach((r) => io.observe(r));
+  }
+</script>

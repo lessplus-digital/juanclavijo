@@ -67,11 +67,6 @@
   :global(:root[data-theme='dark']) .tt__knob {
     transform: translate(calc(var(--w) - var(--h) + 2px), -50%);
   }
-  @media (prefers-color-scheme: dark) {
-    :global(:root:not([data-theme='light'])) .tt__knob {
-      transform: translate(calc(var(--w) - var(--h) + 2px), -50%);
-    }
-  }
 
   .tt svg {
     position: absolute;
@@ -97,27 +92,15 @@
     opacity: 1;
     transform: none;
   }
-  @media (prefers-color-scheme: dark) {
-    :global(:root:not([data-theme='light'])) .tt__sun {
-      opacity: 0;
-      transform: rotate(70deg) scale(0.4);
-    }
-    :global(:root:not([data-theme='light'])) .tt__moon {
-      opacity: 1;
-      transform: none;
-    }
-  }
 </style>
 
 <script>
   const btn = document.querySelector<HTMLButtonElement>('.tt');
   const root = document.documentElement;
 
+  // El sitio arranca en claro salvo que el usuario haya elegido oscuro antes.
   function current(): 'light' | 'dark' {
-    if (root.dataset.theme === 'dark' || root.dataset.theme === 'light') {
-      return root.dataset.theme;
-    }
-    return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return root.dataset.theme === 'dark' ? 'dark' : 'light';
   }
 
   function apply(next: 'light' | 'dark') {
@@ -127,8 +110,8 @@
     } catch (e) {}
     const color = next === 'dark' ? '#0c0b0a' : '#f2eee6';
     document
-      .querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
-      .forEach((m) => m.setAttribute('content', color));
+      .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+      ?.setAttribute('content', color);
   }
 
   btn?.addEventListener('click', (event) => {

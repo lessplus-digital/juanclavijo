@@ -23,7 +23,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://www.juancla
 ---
 
 <!doctype html>
-<html lang={meta.lang}>
+<html lang={meta.lang} data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -31,8 +31,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://www.juancla
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#f2eee6" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0c0b0a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f2eee6" />
     <meta name="author" content={profile.name} />
 
     <meta property="og:type" content="website" />
@@ -42,12 +41,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://www.juancla
     <meta property="og:locale" content="es_ES" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    {/* Fija el tema antes de pintar para que no haya destello */}
+    {/*
+      El sitio arranca en claro (data-theme ya viene en el <html>). Solo se pasa
+      a oscuro si el usuario lo eligió antes. Va inline y antes de pintar para
+      que no haya destello.
+    */}
     <script is:inline>
       (function () {
         try {
-          var t = localStorage.getItem('theme');
-          if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+          if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.dataset.theme = 'dark';
+            var m = document.querySelector('meta[name="theme-color"]');
+            if (m) m.setAttribute('content', '#0c0b0a');
+          }
         } catch (e) {}
       })();
     </script>
@@ -63,7 +69,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://www.juancla
         email: `mailto:${profile.email}`,
         url: `https://${profile.website}`,
         sameAs: [profile.linkedin],
-        address: { '@type': 'PostalAddress', addressLocality: 'Medellín', addressCountry: 'CO' },
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: profile.location.city,
+          addressCountry: profile.location.country,
+        },
       })}
     />
   </head>
@@ -162,26 +172,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://www.juancla
         update();
       }
 
-      // ── Botones magnéticos ────────────────────────────────────────────────
-      function magnetic() {
-        if (reduce || !matchMedia('(pointer: fine)').matches) return;
-        document.querySelectorAll<HTMLElement>('[data-magnetic]').forEach((el) => {
-          const strength = 0.26;
-          const reset = () => (el.style.transform = '');
-          el.addEventListener('pointermove', (e) => {
-            const r = el.getBoundingClientRect();
-            const x = (e.clientX - (r.left + r.width / 2)) * strength;
-            const y = (e.clientY - (r.top + r.height / 2)) * strength;
-            el.style.transform = `translate(${x}px, ${y}px)`;
-          });
-          el.addEventListener('pointerleave', reset);
-          el.addEventListener('blur', reset);
-        });
-      }
-
       observe();
       progressFallback();
-      magnetic();
 </script>
   </body>
 </html>

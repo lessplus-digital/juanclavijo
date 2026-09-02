@@ -18,7 +18,7 @@ const year = new Date().getFullYear();
     </div>
 
     <div class="foot__bottom">
-      <p>© {year} {profile.name} · {profile.location}</p>
+      <p>© {year} {profile.name}</p>
       <p class="foot__made">Diseñado y construido a mano con Astro</p>
       <a class="foot__up" href="#main">
         Volver arriba
@@ -46,10 +46,10 @@ const year = new Date().getFullYear();
   .foot__word {
     font-family: var(--font-display);
     font-size: clamp(3.4rem, 15vw, 11rem);
-    font-weight: 500;
+    font-weight: var(--display-weight);
     line-height: 0.82;
     letter-spacing: -0.055em;
-    font-variation-settings: 'opsz' 100, var(--wonk-on);
+    font-variation-settings: var(--display-fvs);
     color: var(--ink);
     display: grid;
   }

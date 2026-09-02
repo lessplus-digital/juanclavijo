@@ -6,11 +6,13 @@ interface Props {
   intro?: string;
   /** Alinea el bloque a la derecha en pantallas anchas */
   align?: 'start' | 'end';
+  /** Quita el margen inferior: para cuando el encabezado va dentro de una retícula */
+  flush?: boolean;
 }
-const { index, eyebrow, title, intro, align = 'start' } = Astro.props;
+const { index, eyebrow, title, intro, align = 'start', flush = false } = Astro.props;
 ---
 
-<header class="head" data-align={align}>
+<header class:list={['head', flush && 'head--flush']} data-align={align}>
   <div class="head__meta" data-reveal>
     <span class="head__index mono-num">{index}</span>
     <span class="head__line" aria-hidden="true"></span>
@@ -23,12 +25,19 @@ const { index, eyebrow, title, intro, align = 'start' } = Astro.props;
 </header>
 
 <style>
+  /* Sin ancho fijo en el contenedor: cada pieza se limita sola. Con un
+     max-width en ch sobre .head, el título heredaba una medida calculada con
+     el cuerpo de texto y rompía en tres líneas con huérfanas. */
   .head {
     margin-bottom: clamp(2.4rem, 5vw, 4rem);
-    max-width: 30ch;
+    max-width: 34ch;
+  }
+  .head--flush {
+    margin-bottom: 0;
   }
   .head[data-align='end'] {
     margin-inline-start: auto;
+    width: fit-content;
   }
 
   .head__meta {
@@ -57,20 +66,21 @@ const { index, eyebrow, title, intro, align = 'start' } = Astro.props;
     transform: scaleX(1);
   }
 
+  /* Medida en em: se escala con el propio cuerpo del titular */
   .head__title {
-    max-width: 18ch;
+    max-width: 13em;
   }
 
   .head__intro {
     margin-top: clamp(0.9rem, 2vw, 1.3rem);
     max-width: 44ch;
-    color: var(--ink-3);
+    color: var(--ink-2);
     font-size: var(--step--1);
   }
 
   @media (min-width: 900px) {
     .head {
-      max-width: 40ch;
+      max-width: none;
     }
   }
 </style>

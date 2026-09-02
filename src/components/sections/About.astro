@@ -1,170 +1,216 @@
 ---
 import type { SectionDef } from '@/config/site';
-import { profile, education, languages } from '@/config/site';
+import { profile, about, education } from '@/config/site';
 import SectionHead from '@/components/SectionHead.astro';
 
 interface Props {
   section: SectionDef;
 }
 const { section } = Astro.props;
+
+// El tramo entre asteriscos va en cursiva y color de acento.
+const statementParts = about.statement.split('*');
+const [firstParagraph, ...restParagraphs] = profile.bio;
 ---
 
 <section class="section about" id={section.id}>
-  <div class="shell about__grid">
-    <div class="about__aside">
+  <div class="shell">
+    {/*
+      Título y frase de apertura comparten fila: apilados uno tras otro
+      competían entre sí y dejaban toda la mitad derecha vacía.
+    */}
+    <div class="about__head">
       <SectionHead
         index={section.index}
         eyebrow={section.eyebrow}
         title={section.title}
-        intro={section.intro}
+        flush
       />
 
-      <dl class="facts" data-reveal style="--d:220ms">
-        <div>
-          <dt>Base</dt>
-          <dd>{profile.location}</dd>
-        </div>
-        <div>
-          <dt>Trabajo con</dt>
-          <dd>España y LATAM</dd>
-        </div>
-        <div>
-          <dt>Idiomas</dt>
-          <dd>{languages.map((l) => `${l.name} (${l.level})`).join(' · ')}</dd>
-        </div>
-      </dl>
+      <p class="stmt" data-reveal="mask">
+        <span>
+          {
+            statementParts.map((part, i) =>
+              i % 2 === 1 ? <em>{part}</em> : <Fragment>{part}</Fragment>,
+            )
+          }
+        </span>
+      </p>
     </div>
 
-    <div class="about__body">
-      {
-        profile.bio.map((paragraph, i) => (
-          <p class={i === 0 ? 'about__first' : 'about__p'} data-reveal style={`--d:${i * 110}ms`}>
-            {paragraph}
-          </p>
-        ))
-      }
-
-      <div class="about__edu" data-reveal style="--d:260ms">
-        <h3 class="about__eduTitle">Formación</h3>
-        <ul>
-          {
-            education.map((e) => (
-              <li>
-                <span class="about__eduYear mono-num">{e.period}</span>
-                <span class="about__eduName">{e.title}</span>
-                <span class="about__eduPlace">{e.place}</span>
-              </li>
-            ))
-          }
-        </ul>
+    <div class="cols">
+      <p class="cols__lead" data-reveal>{firstParagraph}</p>
+      <div class="cols__rest">
+        {
+          restParagraphs.map((paragraph, i) => (
+            <p data-reveal style={`--d:${(i + 1) * 90}ms`}>
+              {paragraph}
+            </p>
+          ))
+        }
       </div>
+    </div>
+
+    <div class="places" data-reveal>
+      <span class="places__label">{about.countriesLabel}</span>
+      <ul>
+        {about.countries.map((country) => <li class="chip">{country}</li>)}
+      </ul>
+    </div>
+
+    <div class="edu" data-reveal>
+      <h3 class="edu__title">Formación</h3>
+      <ul class="edu__grid">
+        {
+          education.map((e) => (
+            <li>
+              <span class="edu__year mono-num">{e.period}</span>
+              <span class="edu__name">{e.title}</span>
+              <span class="edu__place">{e.place}</span>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </div>
 </section>
 
 <style>
-  .about__grid {
+  /* ── Encabezado en dos columnas ─────────────────────────────────────── */
+  .about__head {
     display: grid;
-    gap: clamp(2rem, 5vw, 4rem);
+    gap: clamp(1.6rem, 3.5vw, 3rem);
+    margin-bottom: clamp(2.4rem, 5vw, 3.8rem);
   }
 
-  .facts {
+  .stmt {
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+    font-weight: var(--display-weight);
+    font-variation-settings: var(--display-fvs);
+    line-height: 1.16;
+    letter-spacing: -0.032em;
+    max-width: 26ch;
+    text-wrap: balance;
+    padding-left: clamp(0.9rem, 1.5vw, 1.2rem);
+    border-left: 2px solid var(--c1);
+  }
+  .stmt em {
+    font-style: italic;
+    color: var(--c1);
+  }
+
+  /* ── Texto ──────────────────────────────────────────────────────────── */
+  .cols {
     display: grid;
-    gap: 0;
+    gap: clamp(1.4rem, 3vw, 3rem);
+    padding-top: clamp(1.6rem, 3vw, 2.4rem);
     border-top: 1px solid var(--line);
   }
-  .facts > div {
+  .cols__lead {
+    font-size: var(--step-1);
+    line-height: 1.45;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    max-width: 40ch;
+  }
+  .cols__rest {
     display: grid;
-    grid-template-columns: minmax(0, 8rem) minmax(0, 1fr);
-    gap: 1rem;
-    padding-block: 0.85rem;
-    border-bottom: 1px solid var(--line);
+    gap: 1.1em;
+    max-width: 48ch;
   }
-  .facts dt {
-    font-family: var(--font-alt);
-    font-size: var(--step--2);
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-    padding-top: 0.25em;
+  .cols__rest p {
+    color: var(--ink-2);
   }
-  .facts dd {
-    margin: 0;
-    font-size: var(--step--1);
+  .cols__rest p:last-child {
     color: var(--ink);
   }
 
-  .about__first {
-    font-family: var(--font-display);
-    font-size: var(--step-3);
-    font-weight: 400;
-    line-height: 1.22;
-    letter-spacing: -0.026em;
-    font-variation-settings: 'opsz' 100, var(--wonk-on);
-    text-wrap: pretty;
-  }
-
-  .about__p {
-    margin-top: 1.4em;
-    max-width: var(--measure);
-    color: var(--ink-2);
-  }
-
-  .about__edu {
-    margin-top: clamp(2.4rem, 5vw, 3.6rem);
-    padding-top: clamp(1.6rem, 3vw, 2.2rem);
+  /* ── Países ─────────────────────────────────────────────────────────── */
+  .places {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: clamp(2.2rem, 4.5vw, 3.4rem);
+    padding-top: clamp(1.4rem, 3vw, 2rem);
     border-top: 1px solid var(--line);
   }
-  .about__eduTitle {
+  .places__label,
+  .edu__title {
     font-family: var(--font-alt);
     font-size: var(--step--2);
     font-weight: 600;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--ink-3);
-    margin-bottom: 1.2rem;
   }
-  .about__edu ul {
+  .places ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  /* ── Formación: las tres columnas comparten forma ───────────────────── */
+  .edu {
+    margin-top: clamp(2.2rem, 4.5vw, 3.4rem);
+    padding-top: clamp(1.4rem, 3vw, 2rem);
+    border-top: 1px solid var(--line);
+  }
+  .edu__title {
+    display: block;
+    margin-bottom: 1.3rem;
+  }
+  .edu__grid {
     display: grid;
     gap: 1.4rem;
   }
-  .about__edu li {
+  .edu__grid li {
     display: grid;
-    gap: 0.15rem;
+    gap: 0.2rem;
+    align-content: start;
     padding-left: 1.1rem;
     border-left: 2px solid var(--line);
     transition: border-color 0.45s var(--ease-out), padding-left 0.45s var(--ease-out);
   }
-  .about__edu li:hover {
+  .edu__grid li:hover {
     border-left-color: var(--c1);
     padding-left: 1.4rem;
   }
-  .about__eduYear {
+  .edu__year {
     font-size: var(--step--2);
     letter-spacing: 0.06em;
     color: var(--ink-3);
   }
-  .about__eduName {
+  .edu__name {
     font-size: var(--step-0);
     font-weight: 500;
+    line-height: 1.25;
+    text-wrap: balance;
   }
-  .about__eduPlace {
+  .edu__place {
     font-size: var(--step--1);
     color: var(--ink-2);
   }
 
   @media (min-width: 900px) {
-    .about__grid {
-      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-      align-items: start;
+    .about__head {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      align-items: end;
+      gap: clamp(2rem, 5vw, 5rem);
     }
-    .about__aside {
-      position: sticky;
-      top: 7rem;
+    .stmt {
+      /* Asienta la frase sobre la línea base del titular */
+      margin-bottom: 0.35rem;
     }
-    .about__edu ul {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 2rem;
+  }
+
+  @media (min-width: 820px) {
+    .cols {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(2rem, 4vw, 4rem);
+    }
+    .edu__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(1.4rem, 3vw, 2.4rem);
     }
   }
 </style>

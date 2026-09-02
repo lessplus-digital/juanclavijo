@@ -2,7 +2,8 @@
 import { getCollection } from 'astro:content';
 import type { SectionDef } from '@/config/site';
 import SectionHead from '@/components/SectionHead.astro';
-import ProjectCard from '@/components/ProjectCard.astro';
+import ProjectRow from '@/components/ProjectRow.astro';
+import ProjectShot from '@/components/ProjectShot.astro';
 
 interface Props {
   section: SectionDef;
@@ -12,6 +13,22 @@ const { section } = Astro.props;
 const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
   (a, b) => a.data.order - b.data.order,
 );
+
+/**
+ * Dos grupos, no un carrusel: con cuatro proyectos un carrusel escondería tres.
+ *
+ * Los productos con maqueta animada ocupan una fila entera cada uno, alternando
+ * el lado. Los sitios terminados van de dos en dos con su captura: no hay nada
+ * que animar en ellos y darles el mismo tamaño restaba fuerza a los dos
+ * primeros. La numeración (01…04) es continua, así que se siguen leyendo como
+ * una sola lista.
+ *
+ * El índice se calcula sobre `projects` entero para que no se repita entre
+ * grupos. Añadir un proyecto es añadir un .md: cae en su grupo según `layout`.
+ */
+const indexed = projects.map((project, i) => ({ project, i }));
+const rows = indexed.filter(({ project }) => project.data.layout === 'scene');
+const shots = indexed.filter(({ project }) => project.data.layout === 'shot');
 ---
 
 <section class="section projects" id={section.id}>
@@ -23,14 +40,24 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft)).so
       intro={section.intro}
     />
 
-    <div class="projects__grid">
-      {projects.map((project, i) => <ProjectCard project={project} index={i} />)}
+    <div class="projects__rows">
+      {rows.map(({ project, i }) => <ProjectRow project={project} index={i} />)}
     </div>
+
+    {
+      shots.length > 0 && (
+        <div class="projects__shots">
+          {shots.map(({ project, i }) => (
+            <ProjectShot project={project} index={i} />
+          ))}
+        </div>
+      )
+    }
 
     {
       projects.length === 0 && (
         <p class="projects__empty">
-          Añade un archivo en <code>src/content/projects/</code> para publicar tu primer caso.
+          Copia <code>src/content/projects/_plantilla.md</code> para publicar tu primer caso.
         </p>
       )
     }
@@ -38,9 +65,24 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft)).so
 </section>
 
 <style>
-  .projects__grid {
+  .projects__rows {
     display: grid;
-    gap: clamp(1rem, 2.2vw, 1.6rem);
+    gap: clamp(4rem, 9vw, 8.5rem);
+  }
+
+  .projects__shots {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4rem);
+    margin-top: clamp(4rem, 9vw, 8.5rem);
+    padding-top: clamp(3rem, 6vw, 5rem);
+    /* Una línea separa los dos grupos sin necesidad de otro encabezado. */
+    border-top: 1px solid var(--line);
+  }
+
+  @media (min-width: 900px) {
+    .projects__shots {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .projects__empty {
@@ -54,11 +96,5 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft)).so
     font-family: var(--font-alt);
     font-size: 0.9em;
     color: var(--c1);
-  }
-
-  @media (min-width: 860px) {
-    .projects__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
 </style>

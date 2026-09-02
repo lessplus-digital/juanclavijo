@@ -16,24 +16,22 @@ export const profile = {
   tagline:
     'Ingeniero Multimedia. Diseño, desarrollo y despliego sitios web, plataformas SaaS y automatizaciones con IA para empresas en España y LATAM.',
   bio: [
-    'Llevo más de 6 años construyendo productos digitales para empresas en España y LATAM. Desarrollo sitios web, plataformas SaaS y automatizaciones con inteligencia artificial que reducen el trabajo manual y generan nuevas oportunidades de negocio.',
-    'Trabajo de punta a punta: entiendo el negocio, diseño, desarrollo, despliego y acompaño la evolución del producto después de su entrega. No entrego un repositorio y desaparezco.',
+    'Soy ingeniero multimedia y llevo seis años construyendo software para empresas en España y Latinoamérica. Empecé haciendo webs, seguí con plataformas y hoy dedico buena parte del tiempo a automatizar con IA lo que antes ocupaba a una persona entera.',
+    'Trabajo solo o integrado en el equipo del cliente, y cubro el recorrido completo: producto, diseño, backend, frontend, despliegue y el mantenimiento QA. No hay traspasos que se pierdan por el camino ni un "eso lo ve otro".',
+    'Lo que me interesa de un proyecto no es la lista de tecnologías. Es qué deja de doler cuando se pone en producción.',
   ],
-  location: 'Medellín, Colombia',
-  availability: 'Disponible para proyectos',
+  /**
+   * Solo alimenta los datos estructurados (SEO local). La ciudad ya no
+   * aparece en la web: se quitó del hero y del pie a propósito.
+   */
+  location: { city: 'Medellín', country: 'CO' },
+  /** Píldora del hero. Deliberadamente sin ciudad. */
+  availability: 'Disponible para proyectos nuevos',
   email: 'hola@juanclavijo.dev',
   phone: '(+57) 311 329 8122',
   phoneRaw: '+573113298122',
   website: 'www.juanclavijo.dev',
   linkedin: 'https://www.linkedin.com/in/juan-pablo-clavijo',
-  /**
-   * Foto de perfil.
-   * `null` = el sitio usa el retrato tipográfico abstracto (recomendado hasta
-   * tener una headshot con luz frontal, fondo neutro y mirada a cámara).
-   * Para activarla: pon aquí la ruta dentro de /public, p. ej. '/juan.jpg'.
-   */
-  photo: null as string | null,
-  photoAlt: 'Retrato de Juan Clavijo',
   /** PDF servido desde /public */
   cv: '/CV_JuanClavijo2026.pdf',
 } as const;
@@ -41,10 +39,31 @@ export const profile = {
 /** Cifras del hero. Máximo 4 para que respire. */
 export const metrics = [
   { value: '6+', label: 'años construyendo' },
-  { value: '70%', label: 'menos tiempo de despliegue' },
-  { value: '600', label: 'pedidos/mes automatizados' },
-  { value: '2', label: 'continentes atendidos' },
+  { value: '35+', label: 'clientes atendidos' },
+  { value: '600', label: 'usuarios en aplicaciones' },
+  { value: '8', label: 'países atendidos' },
 ] as const;
+
+/**
+ * Sección "Perfil".
+ * `statement` es la frase grande de apertura y `facts` la ficha de datos
+ * que se pinta como banda, igual que las cifras del hero.
+ */
+export const about = {
+  /** El tramo entre asteriscos se pinta en cursiva y color de acento. */
+  statement: 'Entiendo el negocio *antes* de escribir la primera línea de código.',
+  countriesLabel: 'He construido producto para equipos en',
+  countries: [
+    'Colombia',
+    'España',
+    'Estados Unidos',
+    'Argentina',
+    'México',
+    'Perú',
+    'Australia',
+    'Chile',
+  ],
+} as const;
 
 /** Cinta infinita bajo el hero. */
 export const marquee = [
@@ -66,86 +85,21 @@ export const services = [
     n: '01',
     title: 'Producto web a medida',
     text: 'Del boceto al dominio en producción. Frontend en React o Astro, backend en .NET o Supabase, y una arquitectura que aguanta cuando el negocio crece.',
-    tags: ['React', 'Astro', '.NET', 'Supabase'],
   },
   {
     n: '02',
     title: 'Automatización con IA',
     text: 'Agentes conversacionales, orquestación en n8n e integraciones con LLMs que se comen el trabajo repetitivo: pedidos, soporte, captación y seguimiento.',
-    tags: ['n8n', 'OpenAI', 'Claude', 'WhatsApp API'],
   },
   {
     n: '03',
     title: 'Plataformas SaaS',
     text: 'Multi-tenant, suscripciones, paneles en tiempo real y control de acceso. Todo lo que separa una demo bonita de un producto que factura.',
-    tags: ['CQRS', 'PostgreSQL', 'Multi-sede', 'Realtime'],
   },
   {
     n: '04',
     title: 'Infraestructura y despliegue',
     text: 'Pipelines, contenedores, dominios, SSL y correo corporativo. Me encargo de que el producto viva, no solo de que compile.',
-    tags: ['Docker', 'Azure DevOps', 'Vercel', 'cPanel'],
-  },
-] as const;
-
-/** Cómo trabajas. Se dibuja como una ruta numerada. */
-export const process = [
-  {
-    step: 'Entender',
-    text: 'Antes de escribir código entiendo el negocio: qué duele, qué se repite y qué se mide. De ahí sale el alcance real.',
-  },
-  {
-    step: 'Diseñar',
-    text: 'Prototipo la interfaz y el modelo de datos a la vez. Decidir la estructura temprano evita reescribir en el mes tres.',
-  },
-  {
-    step: 'Construir',
-    text: 'Entregas cortas y visibles. Cada semana ves algo funcionando, no un informe de avance.',
-  },
-  {
-    step: 'Acompañar',
-    text: 'Despliego, mido y ajusto. El proyecto termina cuando el producto se sostiene solo, no cuando se firma la factura.',
-  },
-] as const;
-
-export const experience = [
-  {
-    company: 'FI Group',
-    role: 'Desarrollador Full Stack',
-    place: 'Madrid (remoto)',
-    period: 'Jul. 2022 — Actualidad',
-    current: true,
-    bullets: [
-      'Aplicaciones Full Stack con React, TypeScript y .NET 6/8, aplicando arquitectura limpia, CQRS y separación de responsabilidades.',
-      'APIs REST y OData en .NET: modelado de datos, migraciones y optimización de consultas en SQL Server con Entity Framework Core.',
-      'Procesos automatizados de sincronización de datos e integración con Azure Storage para gestión y versionamiento de archivos.',
-      'Optimización de entornos y pipelines con Azure DevOps, Docker y Redis, reduciendo un 70% el tiempo de despliegue.',
-      'Participación en la definición de mejoras de producto y experiencia de usuario junto a los equipos de negocio.',
-    ],
-  },
-  {
-    company: 'Esstrategia',
-    role: 'Desarrollador VR',
-    place: 'Medellín · medio tiempo',
-    period: 'Oct. 2021 — Abr. 2022',
-    current: false,
-    bullets: [
-      'Experiencias de realidad virtual interactivas en Unity con C#, exportadas a Oculus Quest 2.',
-      'Modelado, rigging y animación de assets 3D en Maya.',
-      'Programación del flujo de interacción del recorrido con Cinemachine.',
-    ],
-  },
-  {
-    company: 'Somos',
-    role: 'Desarrollador Web',
-    place: 'Madrid (remoto)',
-    period: 'Abr. 2020 — Jun. 2022',
-    current: false,
-    bullets: [
-      'Aplicaciones web en React con componentes reutilizables e integraciones a APIs REST.',
-      'Sitios en WordPress construidos y personalizados, con integración de APIs y optimización.',
-      'Despliegue completo en Hostinger, GoDaddy y cPanel: dominios, certificados SSL, correo corporativo y entornos de producción.',
-    ],
   },
 ] as const;
 
@@ -160,43 +114,77 @@ export const education = [
     place: 'Academlo',
     period: '2021 — 2022',
   },
+  {
+    title: '+22 certificaciones técnicas',
+    place: 'Formación continua',
+    period: '2021 — hoy',
+  },
 ] as const;
 
+/**
+ * Herramientas, por capas. El orden del array es el orden de la maqueta 3D:
+ * arriba lo que ve el visitante, abajo lo que lo sostiene.
+ *
+ * `icon` es el slug de simple-icons.com (se resuelve al compilar, ver
+ * src/config/brands.ts). Si una herramienta no tiene logotipo ahí —las marcas
+ * de Microsoft, por ejemplo, no están— se pinta `mark`: dos o tres letras.
+ * El nombre siempre va al lado, así que la sigla no tiene que explicarse sola.
+ */
 export const stack = [
   {
     group: 'Frontend',
-    items: ['React', 'Next.js', 'TypeScript', 'JavaScript', 'Astro', 'HTML', 'CSS'],
+    note: 'Lo que ve quien entra',
+    items: [
+      { name: 'React', icon: 'react' },
+      { name: 'Next.js', icon: 'nextdotjs' },
+      { name: 'Astro', icon: 'astro' },
+      { name: 'TypeScript', icon: 'typescript' },
+      { name: 'JavaScript', icon: 'javascript' },
+      { name: 'HTML', icon: 'html5' },
+      { name: 'CSS', icon: 'css' },
+      { name: 'Vite', icon: 'vite' },
+    ],
   },
   {
     group: 'Backend y datos',
+    note: 'Donde vive la lógica',
     items: [
-      '.NET 6/8',
-      'C#',
-      'Supabase',
-      'SQL Server',
-      'PostgreSQL',
-      'Entity Framework',
-      'OData',
-      'Azure Storage',
+      { name: '.NET 6/8', icon: 'dotnet' },
+      { name: 'C#', mark: 'C#' },
+      { name: 'Node.js', icon: 'nodedotjs' },
+      { name: 'Supabase', icon: 'supabase' },
+      { name: 'PostgreSQL', icon: 'postgresql' },
+      { name: 'SQL Server', mark: 'SQL' },
+      { name: 'Entity Framework', mark: 'EF' },
+      { name: 'OData', mark: 'OD' },
+      { name: 'Zod', icon: 'zod' },
     ],
   },
   {
     group: 'Automatización e IA',
-    items: ['n8n', 'OpenAI', 'Claude', 'Gemini', 'APIs de LLMs', 'WhatsApp Business API'],
+    note: 'Lo que trabaja solo',
+    items: [
+      { name: 'n8n', icon: 'n8n' },
+      { name: 'Claude', icon: 'claude' },
+      { name: 'OpenAI', mark: 'AI' },
+      { name: 'Gemini', icon: 'googlegemini' },
+      { name: 'WhatsApp Business API', icon: 'whatsapp' },
+    ],
   },
   {
-    group: 'Infraestructura y otros',
+    group: 'Infraestructura y entrega',
+    note: 'Lo que lo mantiene en pie',
     items: [
-      'Vercel',
-      'Netlify',
-      'Docker',
-      'Azure DevOps',
-      'Redis',
-      'Git',
-      'WordPress',
-      'SCRUM',
-      'cPanel',
-      'Unity',
+      { name: 'Docker', icon: 'docker' },
+      { name: 'Vercel', icon: 'vercel' },
+      { name: 'Netlify', icon: 'netlify' },
+      { name: 'Azure DevOps', mark: 'AZ' },
+      { name: 'Redis', icon: 'redis' },
+      { name: 'Git', icon: 'git' },
+      { name: 'cPanel', icon: 'cpanel' },
+      { name: 'WordPress', icon: 'wordpress' },
+      { name: 'Unity', icon: 'unity' },
+      { name: 'SCRUM', mark: 'SC' },
     ],
   },
 ] as const;
@@ -220,8 +208,6 @@ export type SectionId =
   | 'about'
   | 'projects'
   | 'services'
-  | 'process'
-  | 'experience'
   | 'stack'
   | 'contact';
 
@@ -265,33 +251,19 @@ export const sections: SectionDef[] = [
     enabled: true,
   },
   {
-    id: 'process',
-    nav: 'Proceso',
-    index: '04',
-    eyebrow: 'Cómo trabajo',
-    title: 'De la conversación al despliegue',
-    enabled: true,
-  },
-  {
-    id: 'experience',
-    nav: 'Trayectoria',
-    index: '05',
-    eyebrow: 'Dónde he estado',
-    title: 'Seis años de producción real',
-    enabled: true,
-  },
-  {
     id: 'stack',
     nav: 'Stack',
-    index: '06',
+    index: '04',
     eyebrow: 'Herramientas',
     title: 'Con qué lo construyo',
+    intro: 'Cuatro capas, de lo que ve el visitante a lo que lo sostiene por debajo.',
     enabled: true,
   },
   {
     id: 'contact',
-    nav: 'Contacto',
-    index: '07',
+    // Fuera del menú a propósito: el botón "Hablemos" de la barra ya apunta aquí.
+    nav: null,
+    index: '05',
     eyebrow: 'Siguiente paso',
     title: 'Cuéntame qué quieres construir',
     enabled: true,

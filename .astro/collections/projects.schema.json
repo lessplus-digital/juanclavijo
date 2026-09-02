@@ -19,12 +19,22 @@
         "year": {
           "type": "string"
         },
+        "country": {
+          "type": "string"
+        },
         "url": {
           "type": "string",
           "format": "uri"
         },
         "urlLabel": {
           "type": "string"
+        },
+        "highlights": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
         },
         "tags": {
           "type": "array",
@@ -63,12 +73,23 @@
           ],
           "default": "c1"
         },
-        "cover": {
-          "type": "string"
+        "layout": {
+          "type": "string",
+          "enum": [
+            "scene",
+            "shot"
+          ],
+          "default": "shot"
         },
-        "featured": {
-          "type": "boolean",
-          "default": false
+        "scene": {
+          "type": "string",
+          "enum": [
+            "chat",
+            "simulator"
+          ]
+        },
+        "shot": {
+          "type": "string"
         },
         "order": {
           "type": "number",
@@ -87,7 +108,10 @@
         "kicker",
         "summary",
         "role",
-        "year"
+        "year",
+        "country",
+        "url",
+        "urlLabel"
       ],
       "additionalProperties": false
     }

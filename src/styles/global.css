@@ -3,7 +3,8 @@
    Tokens, tipografía, primitivas y animaciones compartidas.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-@import '@fontsource-variable/fraunces/full.css';
+@import '@fontsource-variable/archivo/standard.css';
+@import '@fontsource-variable/archivo/standard-italic.css';
 @import '@fontsource-variable/outfit/index.css';
 @import '@fontsource-variable/bricolage-grotesque/standard.css';
 
@@ -11,13 +12,14 @@
 
 :root {
   /* Tipografías */
-  --font-display: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+  --font-display: 'Archivo Variable', 'Helvetica Neue', Arial, sans-serif;
   --font-sans: 'Outfit Variable', ui-rounded, 'Segoe UI', system-ui, sans-serif;
   --font-alt: 'Bricolage Grotesque Variable', var(--font-sans);
 
-  /* Ejes variables de Fraunces: suave y con "wonk" (asimetría deliberada) */
-  --wonk-on: 'SOFT' 100, 'WONK' 1;
-  --wonk-off: 'SOFT' 0, 'WONK' 0;
+  /* Archivo es variable en peso y ancho. Los titulares van ligeramente
+     expandidos: da presencia sin caer en la grotesca genérica. */
+  --display-fvs: 'wdth' 108;
+  --display-weight: 640;
 
   /* Escala fluida */
   --step--2: clamp(0.69rem, 0.67rem + 0.11vw, 0.75rem);
@@ -95,29 +97,9 @@
   color-scheme: dark;
 }
 
-/* Sin elección explícita seguimos al sistema */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --bg: #0c0b0a;
-    --bg-2: #141211;
-    --bg-3: #1c1917;
-    --ink: #f0eae0;
-    --ink-2: #b6ac9e;
-    --ink-3: #7c7365;
-    --line: rgb(240 234 224 / 0.14);
-    --line-strong: rgb(240 234 224 / 0.3);
-    --c1: #ff6a3d;
-    --c2: #45be92;
-    --c3: #8b80ff;
-    --c4: #f3cb63;
-    --on-accent: #14100c;
-    --glow: 0.2;
-    --grain: 0.09;
-    --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.5), 0 14px 34px -18px rgb(0 0 0 / 0.8);
-    --shadow-lift: 0 2px 8px rgb(0 0 0 / 0.55), 0 40px 70px -34px rgb(0 0 0 / 0.9);
-    color-scheme: dark;
-  }
-}
+/* Nota: el sitio arranca SIEMPRE en claro. El modo oscuro es una elección
+   explícita del usuario (data-theme="dark") y se recuerda en localStorage.
+   Por eso aquí no hay ningún bloque de prefers-color-scheme. */
 
 /* ── 2. Reset ─────────────────────────────────────────────────────────────── */
 
@@ -203,10 +185,10 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: var(--display-weight);
   line-height: 0.95;
-  letter-spacing: -0.03em;
-  font-variation-settings: 'opsz' 100, var(--wonk-on);
+  letter-spacing: -0.035em;
+  font-variation-settings: var(--display-fvs);
   text-wrap: balance;
 }
 
@@ -297,11 +279,7 @@ p {
 :root[data-theme='dark'] .grain {
   --grain-blend: screen;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .grain {
-    --grain-blend: screen;
-  }
-}
+
 
 @keyframes grain-shift {
   0% {
@@ -399,20 +377,22 @@ p {
   display: inline-flex;
   align-items: center;
   gap: 0.7em;
-  padding: 0.9em 1.5em;
+  padding: 0.92em 1.5em;
   border-radius: 999px;
   background: var(--btn-bg);
   color: var(--btn-fg);
   font-family: var(--font-alt);
   font-size: var(--step--1);
   font-weight: 600;
+  line-height: 1.1;
   letter-spacing: -0.01em;
   overflow: hidden;
   isolation: isolate;
-  transition: transform 0.4s var(--ease-spring), box-shadow 0.4s var(--ease-out);
+  transition: color 0.35s var(--ease-out), box-shadow 0.5s var(--ease-out);
   box-shadow: var(--shadow-soft);
 }
 
+/* Relleno de acento que sube desde abajo */
 .btn::before {
   content: '';
   position: absolute;
@@ -420,7 +400,7 @@ p {
   z-index: -1;
   background: var(--c1);
   transform: translateY(101%);
-  transition: transform 0.5s var(--ease-out);
+  transition: transform 0.55s var(--ease-out);
 }
 
 .btn:hover::before,
@@ -431,8 +411,46 @@ p {
 .btn:hover,
 .btn:focus-visible {
   color: var(--on-accent);
-  transform: translateY(-3px);
   box-shadow: var(--shadow-lift);
+}
+
+/* Etiqueta que rueda: dos copias, una sale y la otra entra */
+.btn__label {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+.btn__t {
+  display: block;
+  transition: transform 0.55s var(--ease-out);
+}
+.btn__t + .btn__t {
+  position: absolute;
+  inset: 0;
+  transform: translateY(110%);
+}
+.btn:hover .btn__t:first-child,
+.btn:focus-visible .btn__t:first-child {
+  transform: translateY(-110%);
+}
+.btn:hover .btn__t + .btn__t,
+.btn:focus-visible .btn__t + .btn__t {
+  transform: translateY(0);
+}
+
+.btn__icon {
+  flex: none;
+  transition: transform 0.55s var(--ease-out);
+}
+.btn:hover .btn__icon,
+.btn:focus-visible .btn__icon {
+  transform: translate(3px, -3px);
+}
+.btn[data-icon='down']:hover .btn__icon,
+.btn[data-icon='download']:hover .btn__icon,
+.btn[data-icon='down']:focus-visible .btn__icon,
+.btn[data-icon='download']:focus-visible .btn__icon {
+  transform: translateY(3px);
 }
 
 .btn--ghost {
@@ -441,12 +459,15 @@ p {
   border: 1px solid var(--line-strong);
   box-shadow: none;
 }
-
-.btn .arrow {
-  transition: transform 0.45s var(--ease-spring);
+.btn--ghost:hover,
+.btn--ghost:focus-visible {
+  border-color: transparent;
 }
-.btn:hover .arrow {
-  transform: translate(3px, -3px);
+
+@media (prefers-reduced-motion: reduce) {
+  .btn__t + .btn__t {
+    display: none;
+  }
 }
 
 /* Enlace con subrayado que se dibuja */
@@ -526,6 +547,9 @@ p {
   transition: opacity 0.6s var(--ease-out);
 }
 [data-reveal='mask'] > * {
+  /* En bloque a la fuerza: sobre un elemento en línea con varias líneas de
+     texto el recorte se aplica al primer fragmento y parte la frase. */
+  display: block;
   clip-path: inset(0 0 105% 0);
   transition: clip-path 1.05s var(--ease-out);
   transition-delay: var(--d, 0ms);
@@ -601,9 +625,9 @@ p {
   color: var(--c3);
 }
 
-.italic-wonk {
+.italic-accent {
   font-style: italic;
-  font-variation-settings: 'opsz' 100, 'SOFT' 100, 'WONK' 1;
+  font-variation-settings: var(--display-fvs);
 }
 
 /* ── 9. Transiciones de vista ─────────────────────────────────────────────── */

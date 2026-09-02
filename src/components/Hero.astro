@@ -1,6 +1,7 @@
 ---
 import { profile, metrics } from '@/config/site';
-import Seal from '@/components/Seal.astro';
+import Orb from '@/components/Orb.astro';
+import Btn from '@/components/Btn.astro';
 
 const lines = profile.headline.split(' / ');
 ---
@@ -10,7 +11,7 @@ const lines = profile.headline.split(' / ');
     <div class="hero__text">
       <p class="hero__status rise" style="--d:80ms">
         <span class="dot" aria-hidden="true"></span>
-        {profile.availability} · {profile.location}
+        {profile.availability}
       </p>
 
       <h1 class="hero__title">
@@ -26,35 +27,13 @@ const lines = profile.headline.split(' / ');
       <p class="lead hero__lead rise" style="--d:520ms">{profile.tagline}</p>
 
       <div class="hero__actions rise" style="--d:620ms">
-        <a class="btn" href="#projects" data-magnetic>
-          Ver proyectos
-          <svg class="arrow" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-            <path
-              d="M8 2.6v10.8M3.4 9 8 13.6 12.6 9"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.7"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
-        </a>
-        <a class="btn btn--ghost" href={profile.cv} target="_blank" rel="noreferrer" data-magnetic>
-          Descargar CV
-          <svg class="arrow" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-            <path
-              d="M2.6 10.4v2.2a1 1 0 0 0 1 1h8.8a1 1 0 0 0 1-1v-2.2M8 2.4v8M4.8 7.2 8 10.4l3.2-3.2"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.7"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
-        </a>
+        <Btn href="#projects" label="Ver proyectos" icon="down" />
+        <Btn href={profile.cv} label="Descargar CV" icon="download" variant="ghost" external />
       </div>
     </div>
 
-    <div class="hero__seal rise" style="--d:420ms">
-      <Seal />
+    <div class="hero__orb rise" style="--d:420ms">
+      <Orb />
     </div>
   </div>
 
@@ -71,10 +50,6 @@ const lines = profile.headline.split(' / ');
     </ul>
   </div>
 
-  <a class="scroll-hint" href="#about" aria-label="Bajar al perfil">
-    <span class="scroll-hint__line" aria-hidden="true"></span>
-    <span class="scroll-hint__txt">scroll</span>
-  </a>
 </section>
 
 <style>
@@ -128,11 +103,13 @@ const lines = profile.headline.split(' / ');
     }
   }
 
+  /* Archivo es bastante más ancha que la serif anterior: la escala y la
+     medida están calculadas para que cada línea del titular quepa entera. */
   .hero__title {
-    font-size: clamp(2.9rem, 8.6vw, 6.6rem);
-    line-height: 0.92;
+    font-size: clamp(2.5rem, 6.1vw, 4.9rem);
+    line-height: 0.94;
     letter-spacing: -0.042em;
-    max-width: 15ch;
+    max-width: 21ch;
   }
 
   /* El titular entra solo al cargar, no espera al scroll */
@@ -156,7 +133,7 @@ const lines = profile.headline.split(' / ');
   .hero__title .accent {
     color: var(--c1);
     font-style: italic;
-    font-variation-settings: 'opsz' 100, 'SOFT' 100, 'WONK' 1;
+    font-variation-settings: var(--display-fvs);
     padding-right: 0.08em;
   }
 
@@ -172,9 +149,13 @@ const lines = profile.headline.split(' / ');
     margin-top: clamp(1.8rem, 4vw, 2.6rem);
   }
 
-  .hero__seal {
-    display: none;
+  /* El campo de blobs se sale de su celda a propósito: encerrado en la
+     columna se leía como "un objeto a la izquierda y otro a la derecha". */
+  .hero__orb {
     justify-self: center;
+    width: min(115%, 260px);
+    margin-top: 0.5rem;
+    overflow: visible;
   }
 
   /* Entrada al cargar: el héroe no espera al scroll */
@@ -220,10 +201,10 @@ const lines = profile.headline.split(' / ');
   .metrics b {
     font-family: var(--font-display);
     font-size: var(--step-4);
-    font-weight: 500;
+    font-weight: var(--display-weight);
     line-height: 1;
     letter-spacing: -0.045em;
-    font-variation-settings: 'opsz' 100, var(--wonk-on);
+    font-variation-settings: var(--display-fvs);
   }
   .metrics li:nth-child(1) b {
     color: var(--c1);
@@ -243,49 +224,6 @@ const lines = profile.headline.split(' / ');
     line-height: 1.35;
   }
 
-  /* Indicador de scroll.
-     Vive en el margen exterior, fuera de .shell: si se ancla al borde inferior
-     acaba encima de la última cifra. */
-  .scroll-hint {
-    position: absolute;
-    right: max(0.5rem, calc((100% - var(--shell)) / 2 - 1.9rem));
-    top: 50%;
-    transform: translateY(-50%);
-    display: none;
-    align-items: center;
-    gap: 0.7rem;
-    font-family: var(--font-alt);
-    font-size: 0.66rem;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-    writing-mode: vertical-rl;
-  }
-  .scroll-hint__line {
-    display: block;
-    width: 1px;
-    height: 62px;
-    background: var(--line-strong);
-    overflow: hidden;
-    position: relative;
-  }
-  .scroll-hint__line::after {
-    content: '';
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 40%;
-    background: var(--c1);
-    animation: trickle 2.4s var(--ease-io) infinite;
-  }
-  @keyframes trickle {
-    0% {
-      transform: translateY(-110%);
-    }
-    100% {
-      transform: translateY(260%);
-    }
-  }
-
   @media (min-width: 720px) {
     .metrics {
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -299,17 +237,10 @@ const lines = profile.headline.split(' / ');
     }
   }
 
-  @media (min-width: 900px) {
-    .scroll-hint {
-      display: flex;
-    }
-  }
-
-  /* En tablet el sello se apila bajo el texto; en escritorio pasa a su columna */
-  @media (min-width: 760px) {
-    .hero__seal {
-      display: block;
-      width: min(100%, 250px);
+  /* En tablet se apila bajo el texto; en escritorio pasa a su columna */
+  @media (min-width: 560px) {
+    .hero__orb {
+      width: min(115%, 340px);
       margin-top: 1rem;
     }
   }
@@ -318,9 +249,12 @@ const lines = profile.headline.split(' / ');
     .hero__grid {
       grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
     }
-    .hero__seal {
-      width: 100%;
-      margin-top: 0;
+    .hero__orb {
+      /* Invade el canal entre el texto y su columna, y respira hacia fuera */
+      width: 152%;
+      max-width: none;
+      margin: 0 -13% 0 -32%;
+      justify-self: stretch;
     }
   }
 </style>

@@ -30,7 +30,7 @@ const channels = [
     />
 
     <div class="contact__hero" data-reveal="mask">
-      <a class="contact__mail" href={`mailto:${profile.email}`} data-magnetic>
+      <a class="contact__mail" href={`mailto:${profile.email}`}>
         <span class="contact__mailTxt">{profile.email}</span>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path
@@ -67,10 +67,6 @@ const channels = [
       }
     </ul>
 
-    <p class="contact__note" data-reveal>
-      Escribe con contexto: qué construyes, para quién y cuándo lo necesitas. Respondo con una
-      propuesta concreta, no con un formulario.
-    </p>
   </div>
 </section>
 
@@ -91,10 +87,10 @@ const channels = [
     gap: 0.4em;
     font-family: var(--font-display);
     font-size: clamp(1.7rem, 6.4vw, 4.4rem);
-    font-weight: 500;
+    font-weight: var(--display-weight);
     line-height: 1;
     letter-spacing: -0.045em;
-    font-variation-settings: 'opsz' 100, var(--wonk-on);
+    font-variation-settings: var(--display-fvs);
     word-break: break-word;
     transition: color 0.45s var(--ease-out);
   }

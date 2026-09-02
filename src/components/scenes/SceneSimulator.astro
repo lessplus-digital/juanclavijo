@@ -1,0 +1,827 @@
+---
+/**
+ * Escena de SPL Consulting: el simulador de subvenciones, usándose solo.
+ *
+ * El puntero recorre los tres campos, pulsa «Calcular» y el panel de la
+ * derecha pasa de esqueleto a estimación con el desglose. Es la promesa del
+ * proyecto —de la consulta a la cifra, sin nadie en medio— en catorce segundos.
+ *
+ * CÓMO ESTÁ SINCRONIZADO
+ * Aquí NO se usan `animation-delay`: cada pieza tiene sus propios porcentajes
+ * sobre el mismo ciclo de 14s. Con retardos, las piezas del final del ciclo se
+ * salían del bucle y el reinicio quedaba escalonado.
+ *
+ * LAS COORDENADAS DEL PUNTERO SON GEOMETRÍA, NO MAGIA
+ * `.sim__cursor` se desplaza a puntos calculados a mano sobre la retícula del
+ * formulario: filas de 6.2em (centros de píldora en 2.39 / 8.59 / 14.79em) y
+ * tres columnas de 7.667em (centros en 3.83 / 12 / 20.17em); el botón cae en
+ * 12 / 19.9em. Si cambias la altura de `.f`, el ancho de `.sim__form` o el
+ * tamaño de `.f__opts`, hay que recalcular `@keyframes sim-cursor` o el
+ * puntero señalará al vacío.
+ *
+ * Medidas en `em`, nunca en px: el escenario fija el `font-size` en `cqw`.
+ */
+---
+
+<div class="sim" data-scene-root>
+  <div class="sim__glow"></div>
+
+  <div class="sim__card">
+    <div class="sim__head">
+      <span class="sim__dot"></span>
+      <b>Simulador de subvenciones</b>
+      <span class="sim__tag">Comunidad de Madrid</span>
+    </div>
+
+    <div class="sim__body">
+      <!-- Formulario ────────────────────────────────────────────────── -->
+      <div class="sim__form">
+        <div class="f">
+          <span class="f__label">Tipo de contrato</span>
+          <div class="f__opts">
+            <span>Temporal</span><span class="pick pick--1">Indefinido</span><span>Formación</span>
+          </div>
+        </div>
+
+        <div class="f">
+          <span class="f__label">Perfil de la persona</span>
+          <div class="f__opts">
+            <span class="pick pick--2">Menor de 30</span><span>Mayor de 45</span><span
+              >Larga duración</span
+            >
+          </div>
+        </div>
+
+        <div class="f">
+          <span class="f__label">Jornada</span>
+          <div class="f__opts">
+            <span>Reducida</span><span>Parcial</span><span class="pick pick--3">Completa</span>
+          </div>
+        </div>
+
+        <div class="f__btn"><span>Calcular ayuda</span><i class="f__ripple"></i></div>
+
+        <svg class="sim__cursor" viewBox="0 0 24 24" width="24" height="24">
+          <path
+            d="M5 2.4 19.4 12.1l-6.2.7-3.1 5.6z"
+            fill="#171226"
+            stroke="#fff"
+            stroke-width="1.6"
+            stroke-linejoin="round"></path>
+        </svg>
+      </div>
+
+      <!-- Resultado ─────────────────────────────────────────────────── -->
+      <div class="sim__out">
+        <div class="out__skel">
+          <i style="--w:70%"></i><i style="--w:44%"></i><i style="--w:88%"></i><i style="--w:60%"
+          ></i>
+        </div>
+
+        <div class="out__real">
+          <span class="out__label">Estimación anual</span>
+          <div class="out__amount">
+            <span class="ticker"
+              ><span class="ticker__strip">
+                <span>1.150</span><span>2.380</span><span>3.420</span><span>4.150</span><span
+                  >4.980</span
+                ><span>5.430</span><span>5.680</span><span>5.750</span>
+              </span></span
+            >
+            <em>€</em>
+          </div>
+
+          <div class="out__bar">
+            <i class="bar bar--1"></i><i class="bar bar--2"></i><i class="bar bar--3"></i>
+          </div>
+
+          <ul class="out__legend">
+            <li class="lg lg--1"><i></i>Bonificación SS<b>2.400 €</b></li>
+            <li class="lg lg--2"><i></i>Ayuda autonómica<b>2.750 €</b></li>
+            <li class="lg lg--3"><i></i>Deducción IRPF<b>600 €</b></li>
+          </ul>
+
+          <div class="out__badge">✓ Compatible con Tarifa Plana</div>
+
+          <div class="out__year">
+            <span class="out__year-lbl">Acumulado mes a mes</span>
+            <div class="out__months">
+              {
+                Array.from({ length: 12 }, (_, i) => (
+                  <i style={`--h:${18 + i * 7}%; --i:${i}`} />
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sim__lead">
+    <span class="sim__lead-dot"></span>
+    <span class="sim__lead-txt">Lead cualificado<b>enviado al CRM</b></span>
+  </div>
+</div>
+
+<style>
+  /* Paleta propia: ámbar y violeta sobre papel claro. Deliberadamente lejos
+     del verde menta de Plateo para que las dos tarjetas no se confundan. */
+  .sim {
+    --gold: #f0a500;
+    --gold-2: #ffca3a;
+    --violet: #5b3df5;
+    --night: #171233;
+    --paper: #fff;
+    --soft: #f1eee4;
+    --mute: #7b7461;
+    --loop: 14s;
+
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, #fbf8f0, #eee8db);
+    font-family: var(--font-sans);
+    color: var(--night);
+  }
+
+  .sim__glow {
+    position: absolute;
+    inset: -20%;
+    background: radial-gradient(30% 30% at 78% 22%, color-mix(in oklab, var(--gold) 55%, transparent), transparent 70%),
+      radial-gradient(28% 30% at 16% 84%, color-mix(in oklab, var(--violet) 34%, transparent), transparent 70%);
+    filter: blur(2.4em);
+  }
+
+  .sim__card {
+    position: absolute;
+    left: 2.6em;
+    top: 4em;
+    width: 47.4em;
+    border-radius: 1.2em;
+    background: var(--paper);
+    box-shadow: 0 1.6em 3.6em -1.4em rgb(30 24 8 / 0.42), 0 0 0 1px rgb(30 24 8 / 0.07);
+    overflow: hidden;
+    animation: sim-float 12s var(--ease-io) infinite alternate;
+  }
+
+  .sim__head {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    padding: 0.85em 1.4em;
+    border-bottom: 1px solid #efebe0;
+  }
+  .sim__dot {
+    width: 0.7em;
+    height: 0.7em;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 0.28em color-mix(in oklab, var(--gold) 26%, transparent);
+  }
+  .sim__head b {
+    font-size: 0.78em;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .sim__tag {
+    margin-left: auto;
+    padding: 0.24em 0.7em;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--violet) 12%, #fff);
+    color: var(--violet);
+    font-size: 0.56em;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .sim__body {
+    display: grid;
+    grid-template-columns: 24em 1fr;
+    gap: 1.6em;
+    padding: 1.4em;
+  }
+
+  /* ── Formulario ─────────────────────────────────────────────────────── */
+  .sim__form {
+    position: relative;
+    width: 24em;
+  }
+
+  .f {
+    height: 6.2em;
+  }
+  .f__label {
+    display: block;
+    font-size: 0.62em;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--mute);
+  }
+  .f__opts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5em;
+    height: 2.1em;
+    margin-top: 0.5em;
+  }
+  .f__opts span {
+    display: grid;
+    place-items: center;
+    border-radius: 0.55em;
+    border: 1px solid #e8e3d6;
+    background: #faf8f2;
+    font-size: 0.58em;
+    color: #8b8471;
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  .pick--1 {
+    animation: sim-pick-1 var(--loop) var(--ease-out) infinite both;
+  }
+  .pick--2 {
+    animation: sim-pick-2 var(--loop) var(--ease-out) infinite both;
+  }
+  .pick--3 {
+    animation: sim-pick-3 var(--loop) var(--ease-out) infinite both;
+  }
+
+  .f__btn {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 2.6em;
+    border-radius: 0.65em;
+    background: var(--night);
+    color: #fff;
+    overflow: hidden;
+    animation: sim-btn var(--loop) var(--ease-out) infinite both;
+  }
+  /* El tamaño del texto va en el hijo: si lo pusiera en .f__btn, su alto y su
+     margen se medirían en esa escala y el puntero pulsaría fuera del botón. */
+  .f__btn span {
+    position: relative;
+    z-index: 1;
+    font-size: 0.68em;
+    font-weight: 600;
+  }
+
+  .f__ripple {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 3em;
+    height: 3em;
+    margin: -1.5em 0 0 -1.5em;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: sim-ripple var(--loop) var(--ease-out) infinite both;
+  }
+
+  .sim__cursor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1.5em;
+    height: 1.5em;
+    filter: drop-shadow(0 0.2em 0.3em rgb(0 0 0 / 0.28));
+    animation: sim-cursor var(--loop) var(--ease-out) infinite both,
+      sim-press var(--loop) linear infinite both;
+  }
+
+  /* ── Resultado ──────────────────────────────────────────────────────── */
+  .sim__out {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 1em 1.1em;
+    border-radius: 0.9em;
+    background: linear-gradient(165deg, #201a45, var(--night));
+    color: #efeaff;
+    overflow: hidden;
+  }
+  .sim__out::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(60% 50% at 80% 0%, color-mix(in oklab, var(--gold) 34%, transparent), transparent 70%);
+  }
+
+  .out__skel {
+    position: absolute;
+    inset: 1em 1.1em auto;
+    display: grid;
+    gap: 0.7em;
+    animation: sim-skel var(--loop) var(--ease-out) infinite both;
+  }
+  .out__skel i {
+    width: var(--w);
+    height: 0.75em;
+    border-radius: 0.4em;
+    background: linear-gradient(90deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.08));
+    background-size: 300% 100%;
+    animation: sim-shimmer 1.6s linear infinite;
+  }
+
+  .out__real {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    animation: sim-real var(--loop) var(--ease-out) infinite both;
+  }
+  .out__label {
+    font-size: 0.58em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, var(--gold-2) 78%, #fff);
+  }
+
+  .out__amount {
+    display: flex;
+    align-items: baseline;
+    gap: 0.14em;
+    margin-top: 0.15em;
+    font-family: var(--font-display);
+    font-size: 2.5em;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.045em;
+    color: var(--gold-2);
+  }
+  .out__amount em {
+    font-size: 0.5em;
+    font-style: normal;
+    opacity: 0.72;
+  }
+
+  /* Tira de cifras: sube a saltos hasta la estimación final. */
+  .ticker {
+    display: block;
+    height: 1em;
+    overflow: hidden;
+  }
+  .ticker__strip {
+    display: block;
+    animation: sim-ticker var(--loop) steps(1, end) infinite both;
+  }
+  .ticker__strip span {
+    display: block;
+    height: 1em;
+  }
+
+  .out__bar {
+    display: flex;
+    gap: 0.2em;
+    height: 0.7em;
+    margin-top: 1em;
+  }
+  .bar {
+    height: 100%;
+    border-radius: 0.35em;
+    transform-origin: left;
+  }
+  .bar--1 {
+    flex: 2400;
+    background: var(--gold);
+    animation: sim-bar var(--loop) var(--ease-out) infinite both;
+  }
+  .bar--2 {
+    flex: 2750;
+    background: var(--violet);
+    animation: sim-bar var(--loop) var(--ease-out) infinite both;
+  }
+  .bar--3 {
+    flex: 600;
+    background: #46d6a8;
+    animation: sim-bar var(--loop) var(--ease-out) infinite both;
+  }
+
+  .out__legend {
+    display: grid;
+    gap: 0.42em;
+    margin-top: 0.9em;
+    padding: 0;
+    list-style: none;
+  }
+  .lg {
+    display: flex;
+    align-items: center;
+    gap: 0.45em;
+    font-size: 0.58em;
+    color: #b9b1e0;
+  }
+  .lg i {
+    width: 0.55em;
+    height: 0.55em;
+    border-radius: 0.18em;
+  }
+  .lg--1 i {
+    background: var(--gold);
+  }
+  .lg--2 i {
+    background: var(--violet);
+  }
+  .lg--3 i {
+    background: #46d6a8;
+  }
+  .lg b {
+    margin-left: auto;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .out__badge {
+    margin-top: 1em;
+    padding: 0.42em 0.7em;
+    border-radius: 0.5em;
+    background: color-mix(in oklab, #46d6a8 20%, transparent);
+    border: 1px solid color-mix(in oklab, #46d6a8 45%, transparent);
+    color: #8ef0cd;
+    font-size: 0.58em;
+    font-weight: 600;
+    text-align: center;
+    animation: sim-badge var(--loop) var(--ease-spring) infinite both;
+  }
+
+  /* Acumulado mensual: empuja hacia abajo con margin-top:auto, así el panel
+     queda lleno sea cual sea la altura del formulario. */
+  .out__year {
+    margin-top: auto;
+    padding-top: 1em;
+  }
+  .out__year-lbl {
+    display: block;
+    font-size: 0.52em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8f87bd;
+  }
+  .out__months {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.22em;
+    height: 3.2em;
+    margin-top: 0.5em;
+  }
+  .out__months i {
+    flex: 1;
+    height: var(--h);
+    border-radius: 0.16em 0.16em 0 0;
+    background: linear-gradient(180deg, var(--gold-2), color-mix(in oklab, var(--gold) 45%, transparent));
+    transform-origin: bottom;
+    animation: sim-month var(--loop) var(--ease-out) infinite both;
+    animation-delay: calc(var(--i) * 0.05s);
+  }
+
+  /* ── Píldora de captación ───────────────────────────────────────────── */
+  .sim__lead {
+    position: absolute;
+    right: 2.4em;
+    bottom: 4.6em;
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    padding: 0.55em 0.95em;
+    border-radius: 999px;
+    background: var(--night);
+    color: #fff;
+    box-shadow: 0 1em 2.2em -0.8em rgb(23 18 51 / 0.7);
+    animation: sim-lead var(--loop) var(--ease-spring) infinite both;
+  }
+  .sim__lead-txt {
+    font-size: 0.62em;
+  }
+  .sim__lead b {
+    display: block;
+    color: var(--gold-2);
+    font-weight: 600;
+  }
+  .sim__lead-dot {
+    width: 0.6em;
+    height: 0.6em;
+    border-radius: 50%;
+    background: #46d6a8;
+    box-shadow: 0 0 0 0.3em color-mix(in oklab, #46d6a8 22%, transparent);
+  }
+
+  /* ── Animaciones ────────────────────────────────────────────────────── */
+  /* Selección de opción. Un bloque por campo: los porcentajes marcan el
+     momento exacto de cada clic sobre el ciclo común. */
+  @keyframes sim-pick-1 {
+    0%,
+    6% {
+      background: #faf8f2;
+      border-color: #e8e3d6;
+      color: #8b8471;
+    }
+    8%,
+    86% {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #2a1d00;
+    }
+    90%,
+    100% {
+      background: #faf8f2;
+      border-color: #e8e3d6;
+      color: #8b8471;
+    }
+  }
+  @keyframes sim-pick-2 {
+    0%,
+    15% {
+      background: #faf8f2;
+      border-color: #e8e3d6;
+      color: #8b8471;
+    }
+    17%,
+    86% {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #2a1d00;
+    }
+    90%,
+    100% {
+      background: #faf8f2;
+      border-color: #e8e3d6;
+      color: #8b8471;
+    }
+  }
+  @keyframes sim-pick-3 {
+    0%,
+    25% {
+      background: #faf8f2;
+      border-color: #e8e3d6;
+      color: #8b8471;
+    }
+    27%,
+    86% {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #2a1d00;
+    }
+    90%,
+    100% {
+      background: #faf8f2;
+      border-color: #e8e3d6;
+      color: #8b8471;
+    }
+  }
+
+  /* Puntero. Coordenadas explicadas en la cabecera del archivo. */
+  @keyframes sim-cursor {
+    0% {
+      translate: 7em 21.6em;
+      opacity: 0;
+    }
+    1.5% {
+      opacity: 1;
+    }
+    7%,
+    11% {
+      translate: 12em 2.39em;
+      opacity: 1;
+    }
+    16%,
+    21% {
+      translate: 3.83em 8.59em;
+      opacity: 1;
+    }
+    26%,
+    32% {
+      translate: 20.17em 14.79em;
+      opacity: 1;
+    }
+    37%,
+    41% {
+      translate: 12em 19.9em;
+      opacity: 1;
+    }
+    47%,
+    100% {
+      translate: 13em 21.4em;
+      opacity: 0;
+    }
+  }
+  /* El «clic» va en `transform` y el recorrido en `translate`: son propiedades
+     distintas, se componen y ninguna pisa a la otra. */
+  @keyframes sim-press {
+    0%,
+    37% {
+      transform: scale(1);
+    }
+    38.4% {
+      transform: scale(0.76);
+    }
+    40%,
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes sim-btn {
+    0%,
+    37% {
+      transform: none;
+    }
+    38.4% {
+      transform: translateY(0.12em) scale(0.985);
+    }
+    40%,
+    100% {
+      transform: none;
+    }
+  }
+  @keyframes sim-ripple {
+    0%,
+    37.6% {
+      opacity: 0;
+      transform: scale(0.2);
+    }
+    38.4% {
+      opacity: 0.55;
+    }
+    44%,
+    100% {
+      opacity: 0;
+      transform: scale(9);
+    }
+  }
+
+  @keyframes sim-skel {
+    0%,
+    38% {
+      opacity: 1;
+    }
+    41%,
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes sim-shimmer {
+    to {
+      background-position: -300% 0;
+    }
+  }
+
+  @keyframes sim-real {
+    0%,
+    39% {
+      opacity: 0;
+      transform: translateY(0.5em);
+    }
+    43%,
+    88% {
+      opacity: 1;
+      transform: none;
+    }
+    93%,
+    100% {
+      opacity: 0;
+      transform: translateY(-0.3em);
+    }
+  }
+
+  @keyframes sim-ticker {
+    0%,
+    42% {
+      transform: translateY(0);
+    }
+    43.2% {
+      transform: translateY(-12.5%);
+    }
+    44.4% {
+      transform: translateY(-25%);
+    }
+    45.6% {
+      transform: translateY(-37.5%);
+    }
+    46.8% {
+      transform: translateY(-50%);
+    }
+    48% {
+      transform: translateY(-62.5%);
+    }
+    49.2% {
+      transform: translateY(-75%);
+    }
+    50.4%,
+    100% {
+      transform: translateY(-87.5%);
+    }
+  }
+
+  @keyframes sim-bar {
+    0%,
+    45% {
+      transform: scaleX(0);
+    }
+    52%,
+    88% {
+      transform: scaleX(1);
+    }
+    93%,
+    100% {
+      transform: scaleX(0);
+    }
+  }
+
+  @keyframes sim-badge {
+    0%,
+    55% {
+      opacity: 0;
+      transform: scale(0.86);
+    }
+    59%,
+    88% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    93%,
+    100% {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  @keyframes sim-month {
+    0%,
+    47% {
+      transform: scaleY(0);
+    }
+    56%,
+    88% {
+      transform: scaleY(1);
+    }
+    93%,
+    100% {
+      transform: scaleY(0);
+    }
+  }
+
+  @keyframes sim-lead {
+    0%,
+    62% {
+      opacity: 0;
+      transform: translateY(1.2em) scale(0.92);
+    }
+    67%,
+    88% {
+      opacity: 1;
+      transform: none;
+    }
+    93%,
+    100% {
+      opacity: 0;
+      transform: translateY(0.6em) scale(0.96);
+    }
+  }
+
+  @keyframes sim-float {
+    to {
+      transform: translateY(-0.7em);
+    }
+  }
+
+  /* Fuera de pantalla no se anima nada. */
+  .sim *,
+  .sim {
+    animation-play-state: paused;
+  }
+  .sim[data-live],
+  .sim[data-live] * {
+    animation-play-state: running;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sim[data-live],
+    .sim[data-live] * {
+      animation: none !important;
+    }
+    /* Estado final: formulario resuelto y estimación a la vista. */
+    .f__opts span.pick {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #2a1d00;
+    }
+    .out__skel,
+    .f__ripple,
+    .sim__cursor {
+      opacity: 0;
+    }
+    .out__real,
+    .out__badge,
+    .sim__lead {
+      opacity: 1;
+    }
+    .ticker__strip {
+      transform: translateY(-87.5%);
+    }
+    .out__months i {
+      transform: scaleY(1);
+    }
+  }
+</style>

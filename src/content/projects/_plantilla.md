@@ -1,37 +1,52 @@
 ---
 # ─────────────────────────────────────────────────────────────────────────────
-# PLANTILLA — copia este archivo, renómbralo (el nombre será la URL)
-# y pon `draft: false` para que aparezca en el sitio.
+# PLANTILLA DE PROYECTO
+# Copia este archivo, renómbralo (el nombre no genera URL) y pon draft: false.
+# La tarjeta entera enlaza a `url`, así que ese campo es obligatorio.
 # ─────────────────────────────────────────────────────────────────────────────
 title: Nombre del proyecto
-kicker: Una frase de qué es
-summary: Dos líneas explicando qué construiste y para quién. Esto se lee en la tarjeta del portafolio.
+kicker: Qué es, en cuatro palabras
+summary: Una o dos frases. Qué problema resolvía y para quién. Sin adjetivos de folleto.
 role: Tu papel en el proyecto
-year: '2026'
-# url: https://ejemplo.com          # opcional
-# urlLabel: ejemplo.com             # opcional
-# cover: /proyectos/mi-imagen.jpg   # opcional, dentro de /public
-accent: c4 # c1 arcilla · c2 musgo · c3 iris · c4 mantequilla
-featured: false # true = tarjeta grande
-order: 10 # menor número = aparece antes
-draft: true # ponlo en false para publicarlo
+year: '2025'
+country: España
+
+url: https://ejemplo.com
+urlLabel: ejemplo.com
+
+# c1 arcilla · c2 musgo · c3 iris · c4 mantequilla. Uno distinto por proyecto.
+accent: c1
+
+# CÓMO SE PRESENTA
+#   shot  → tarjeta compacta con la captura del sitio, de dos en dos.
+#           Es lo normal para una web terminada.
+#   scene → fila grande con una maqueta animada. Las escenas están dibujadas a
+#           mano para un producto concreto (chat = Plateo, simulator = SPL);
+#           no reutilices una para un proyecto que no la merece.
+layout: shot
+
+# Con layout: shot, apunta a tu captura dentro de src/assets/. La ruta se
+# valida aunque el proyecto esté en draft, por eso aquí va comentada.
+# shot: ../../assets/shot-ejemplo.png
+
+# Con layout: scene, elige la maqueta en vez de la captura.
+# scene: chat
+
+order: 99
+draft: true
+
+# Dos o tres frases cortas. Qué construiste, no qué tecnología usaste.
+highlights:
+  - Primera cosa concreta que resolviste.
+  - Segunda cosa concreta.
+
 tags:
-  - Tecnología uno
-  - Tecnología dos
+  - Astro
+  - TypeScript
+
+# Máximo tres, y solo en las filas grandes (layout: scene). Si no hay números
+# reales, borra la lista: un dato inventado se nota.
 metrics:
-  - value: '00%'
-    label: qué mejoró
+  - value: '30%'
+    label: lo que mejoró
 ---
-
-## El problema
-
-Qué dolía antes de que existiera esto.
-
-## Qué construí
-
-- Punto uno.
-- Punto dos.
-
-## Resultado
-
-La cifra o el cambio concreto.
