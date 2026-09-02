@@ -73,16 +73,29 @@
   color-scheme: light;
 }
 
-/* Paleta oscura */
+/* Paleta oscura.
+
+   NO ES EL ESPEJO DE LA CLARA, y tiene que no serlo. Sobre fondo oscuro un
+   texto claro se percibe más fino y más apagado que su equivalente exacto en
+   claro: el mismo cociente de contraste se lee peor. Medido, `--ink-3` daba
+   4.21:1 aquí y 3.46:1 en el tema claro —MEJOR número en oscuro— y aun así en
+   pantalla las etiquetas pequeñas (los antetítulos, las notas de las fichas,
+   el subtítulo de la marca, los pies de las cifras) se caían del todo. Por eso
+   los tres grises van más altos aquí que sus pares claros. Si algún día
+   igualas las dos paletas «por coherencia», vuelve el problema.
+
+   Las fichas de Servicios no tienen relleno: son un borde y nada más. En
+   oscuro, `--line` a 0.14 las dejaba en un rectángulo que apenas se adivinaba,
+   así que la línea sube a 0.2 — es el único trazo que dibuja esas tarjetas. */
 :root[data-theme='dark'] {
   --bg: #0c0b0a;
-  --bg-2: #141211;
-  --bg-3: #1c1917;
+  --bg-2: #191715;
+  --bg-3: #232020;
   --ink: #f0eae0;
-  --ink-2: #b6ac9e;
-  --ink-3: #7c7365;
-  --line: rgb(240 234 224 / 0.14);
-  --line-strong: rgb(240 234 224 / 0.3);
+  --ink-2: #c2b8aa;
+  --ink-3: #9c9284;
+  --line: rgb(240 234 224 / 0.2);
+  --line-strong: rgb(240 234 224 / 0.4);
 
   --c1: #ff6a3d;
   --c2: #45be92;

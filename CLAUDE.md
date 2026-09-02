@@ -382,3 +382,13 @@ sueltos flotando en 3D, cada uno con su propio movimiento.
 Verificar siempre en los dos temas y en los tres anchos: 390 (móvil), 820
 (tablet) y 1440 (escritorio). Los puntos de quiebre reales del layout están en
 760px, 860px, 900px y 1040px.
+
+- **Las dos paletas NO son simétricas, y tiene que ser así.** Sobre fondo
+  oscuro un texto claro se percibe más fino y más apagado que su equivalente
+  exacto en claro: el mismo cociente de contraste se lee peor. `--ink-3` daba
+  4.21:1 en oscuro y 3.46:1 en claro —mejor número en oscuro— y aun así las
+  etiquetas pequeñas se caían solo en oscuro. Por eso los grises y las líneas
+  del bloque `[data-theme='dark']` van más altos que sus pares claros. No los
+  iguales «por coherencia».
+- **Las fichas de Servicios no tienen relleno**: son un borde y nada más. En
+  oscuro, `--line` es lo único que las dibuja, así que bajarla las borra.
