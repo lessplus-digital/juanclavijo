@@ -15,16 +15,24 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft)).so
 );
 
 /**
- * Dos grupos, no un carrusel: con cuatro proyectos un carrusel escondería tres.
+ * Dos grupos, no un carrusel: un carrusel escondería casi todo el portafolio.
  *
  * Los productos con maqueta animada ocupan una fila entera cada uno, alternando
  * el lado. Los sitios terminados van de dos en dos con su captura: no hay nada
- * que animar en ellos y darles el mismo tamaño restaba fuerza a los dos
- * primeros. La numeración (01…04) es continua, así que se siguen leyendo como
- * una sola lista.
+ * que animar en ellos y darles el mismo tamaño restaba fuerza a los que sí
+ * tienen algo que enseñar. La numeración es continua entre los dos grupos, así
+ * que se siguen leyendo como una sola lista.
+ *
+ * HOY LOS TRES PROYECTOS SON ESCENAS y el segundo grupo sale vacío: el bloque
+ * de capturas y su línea de separación no se pintan. El camino de `layout:
+ * shot` sigue vivo para el siguiente proyecto que no tenga nada que animar.
  *
  * El índice se calcula sobre `projects` entero para que no se repita entre
  * grupos. Añadir un proyecto es añadir un .md: cae en su grupo según `layout`.
+ *
+ * Cuando queda UNA sola captura, la retícula de dos columnas la dejaría en la
+ * mitad izquierda con un hueco al lado. En ese caso la tarjeta pasa a fila
+ * (`solo`): la captura a un lado y el texto al otro, ocupando el ancho entero.
  */
 const indexed = projects.map((project, i) => ({ project, i }));
 const rows = indexed.filter(({ project }) => project.data.layout === 'scene');
@@ -46,9 +54,9 @@ const shots = indexed.filter(({ project }) => project.data.layout === 'shot');
 
     {
       shots.length > 0 && (
-        <div class="projects__shots">
+        <div class:list={['projects__shots', shots.length === 1 && 'projects__shots--solo']}>
           {shots.map(({ project, i }) => (
-            <ProjectShot project={project} index={i} />
+            <ProjectShot project={project} index={i} solo={shots.length === 1} />
           ))}
         </div>
       )
@@ -82,6 +90,9 @@ const shots = indexed.filter(({ project }) => project.data.layout === 'shot');
   @media (min-width: 900px) {
     .projects__shots {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .projects__shots--solo {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 

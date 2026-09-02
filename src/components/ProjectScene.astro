@@ -4,7 +4,9 @@
  *
  * Solo los proyectos con `layout: scene` llegan aquí. Esto elige la maqueta y
  * monta el escenario común; una web terminada se cuenta con su captura
- * (ProjectShot), no con una animación inventada.
+ * (ProjectShot), no con una animación inventada. Cada escena está dibujada
+ * para su producto: chat = Plateo, simulator = SPL, access = el widget de
+ * accesibilidad de SOMOS Connection.
  *
  * EL ESCENARIO ES UN CONTENEDOR DE CONSULTA y fija su `font-size` con
  * `max(cqw, cqh)`: dentro de las escenas TODO se mide en `em`, así que la
@@ -19,9 +21,10 @@
  */
 import SceneChat from '@/components/scenes/SceneChat.astro';
 import SceneSimulator from '@/components/scenes/SceneSimulator.astro';
+import SceneAccess from '@/components/scenes/SceneAccess.astro';
 
 interface Props {
-  scene: 'chat' | 'simulator';
+  scene: 'chat' | 'simulator' | 'access';
 }
 const { scene } = Astro.props;
 ---
@@ -30,6 +33,7 @@ const { scene } = Astro.props;
   <div class="scene__box">
     {scene === 'chat' && <SceneChat />}
     {scene === 'simulator' && <SceneSimulator />}
+    {scene === 'access' && <SceneAccess />}
   </div>
 </div>
 

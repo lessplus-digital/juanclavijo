@@ -51,11 +51,18 @@ el build falla. Es deliberado.
   del caso cabe en el frontmatter del `.md`; el cuerpo del archivo no se
   renderiza. Se probó una página por proyecto y era un rodeo: el visitante
   quiere ver el sitio, no leer una ficha.
-- **Ni carrusel ni retícula uniforme.** Un carrusel escondería tres de cada
-  cuatro proyectos. Los productos con maqueta animada (`layout: scene`) ocupan
-  una fila entera alternando el lado; los sitios terminados (`layout: shot`)
-  van de dos en dos con su captura. Darles el mismo tamaño a los cuatro
-  restaba fuerza a los dos que sí tienen algo que enseñar.
+- **Ni carrusel ni retícula uniforme.** Un carrusel escondería casi todo el
+  portafolio. Los productos con maqueta animada (`layout: scene`) ocupan una
+  fila entera alternando el lado; los sitios terminados (`layout: shot`) van de
+  dos en dos con su captura. **Hoy los tres proyectos son escenas** y el
+  segundo grupo sale vacío —ni bloque de capturas ni línea de separación—; el
+  camino de `shot` sigue vivo para el siguiente proyecto que no tenga nada que
+  animar. Cuando queda UNA sola captura, la retícula de dos columnas la dejaba
+  en la mitad izquierda con un hueco al lado: en ese caso pasa a fila (`solo`
+  en `ProjectShot`), imagen a un lado y texto al otro.
+- **Se quitó BD Welsh.** Era la cuarta ficha, con captura y sin nada que
+  enseñar en movimiento, y al lado de tres escenas se leía como relleno. Está
+  en el historial de git si hiciera falta.
 - **Las escenas se dibujan a mano, una por producto.** No hay motor genérico
   de maquetas ni patrón generativo de relleno (hubo uno, `ProjectArt`, y se
   quitó: decoraba sin decir nada). Una web que no «hace» nada se cuenta con su
@@ -105,8 +112,8 @@ URL) y pon `draft: false`. Campos en `src/content.config.ts`.
 
 Lo normal es `layout: shot`: deja la captura en `src/assets/` y apúntala desde
 `shot:`. El proyecto cae en la retícula de dos columnas. `layout: scene` es
-para productos con maqueta animada propia, y hoy solo hay dos escenas (`chat`
-y `simulator`); no reutilices una para un proyecto que no la merece.
+para productos con maqueta animada propia, y hoy hay tres escenas (`chat`,
+`simulator` y `access`); no reutilices una para un proyecto que no la merece.
 
 El `order` manda la numeración, que es continua entre los dos grupos.
 
@@ -172,9 +179,12 @@ Cómo está hecho:
 
 ## Las escenas del portafolio
 
-Dos proyectos llevan maqueta animada: `SceneChat` (Plateo, el teléfono y el
-panel de cocina) y `SceneSimulator` (SPL, el simulador usándose solo). Son CSS
-puro — ni GIF, ni vídeo, ni JS de animación.
+Los tres proyectos llevan maqueta animada: `SceneChat` (Plateo, la conversación
+de WhatsApp y la comanda que se escribe sola), `SceneSimulator` (SPL, el
+simulador usándose solo) y
+`SceneAccess` (SOMOS, el widget de accesibilidad: el botón de la esquina, el
+panel y la página cambiando opción a opción). Son CSS puro — ni GIF, ni vídeo,
+ni JS de animación.
 
 - **Lienzo fijo de 52.63 × 42.1em (10/8).** `ProjectScene` monta el escenario:
   es un contenedor de consulta y fija el `font-size` con
@@ -186,11 +196,54 @@ puro — ni GIF, ni vídeo, ni JS de animación.
   miden con el `font-size` del propio elemento. Pasó con el botón del
   simulador: al llevar `font-size`, su alto y su margen se encogían y el
   puntero pulsaba fuera. El tamaño del texto va en un hijo.
-- **Un solo ciclo de 14s por escena.** En `SceneChat` las piezas comparten
-  duración y se separan con `animation-delay`; en `SceneSimulator` NO hay
-  retardos, cada pieza lleva sus propios porcentajes. Mezclar los dos sistemas
-  descuadra el reinicio: lo que arranca tarde con retardo termina fuera del
-  ciclo.
+- **Un solo ciclo de 14s por escena y NADA de `animation-delay`.** Cada pieza
+  lleva sus propios porcentajes. `SceneChat` usaba retardos y se rehízo por
+  esto: el retardo desplaza también el reinicio, así que cada pieza se apagaba
+  por su cuenta y media vuelta el teléfono estaba vacío.
+- **Construir → PARARSE → reiniciar.** Las tres escenas montan su historia,
+  **se quedan quietas con todo puesto** hasta el 88% y se apagan juntas en el
+  90%. Esa parada con la escena terminada es lo que hace que se lean: un bucle
+  que nunca descansa no se deja mirar.
+- **Una propiedad que solo aparece en UN fotograma interpola desde el 0%.** Si
+  declaras `background` únicamente en el tramo encendido, el navegador lo
+  interpola desde el valor base del elemento durante todo lo anterior. Pasó con
+  los puntos de los pasos de la comanda: se teñían de menta media vuelta antes
+  de tocarles. Va en los tres tramos o en ninguno.
+- **Un chat crece hacia arriba.** El registro de `SceneChat` va anclado abajo y
+  cada mensaje vive en un `.row` que abre de `grid-template-rows: 0fr` a `1fr`:
+  cerrado NO ocupa alto, así que la pila empuja de verdad. Con opacidad sola,
+  los cinco mensajes reservaban su hueco desde el principio y se veía una
+  columna de huecos. El margen del globo va DENTRO del hijo con
+  `overflow: hidden`, o los huecos vuelven por la puerta de atrás.
+- **Dos objetos por escena, no tres.** `SceneChat` tenía teléfono, panel de
+  cocina con estadísticas y una tarjeta suelta de «traspaso a humano»: tres
+  cosas contando tres historias y el teléfono —que es el producto— perdiendo.
+  Ahora manda el chat y la comanda solo enseña lo que el chat produce.
+- **Nada de `<a>` dentro de una escena.** La tarjeta entera de `ProjectRow` es
+  un enlace, y el analizador de HTML CIERRA el `<a>` exterior en cuanto
+  encuentra otro dentro: el DOM se parte, la escena se sale de su celda y la
+  sección entera se descuadra. La maqueta de SOMOS lleva menú y enlaces, y son
+  `<span>`. La escena es `aria-hidden`, así que no pierde nada.
+- **Un cambio de color que toca media escena va en `@property`.** El contraste
+  alto de `SceneAccess` cambia fondo, tinta, acento y líneas de una decena de
+  elementos: las seis variables se registran con `@property` (`<color>`,
+  `inherits: true`) y se animan UNA vez sobre la raíz de la página maquetada,
+  en vez de escribir una decena de `@keyframes` gemelos.
+- **`animation-play-state` no llega a los pseudoelementos con `*`.** Si una
+  escena anima un `::before` o un `::after` (los subrayados de SOMOS), hay que
+  nombrarlos en la regla de pausa o seguirán animándose fuera de pantalla.
+- **Un puntero se anima con `--ease-io`, nunca con `--ease-out`.**
+  `--ease-out` es `cubic-bezier(0.16, 1, 0.3, 1)`: recorre casi todo el trayecto
+  en el primer quinto del tramo. El puntero de SceneAccess aparecía de golpe
+  sobre el interruptor y se quedaba parado hasta el clic; como los tramos no
+  miden todos lo mismo, la espera cambiaba de una fila a otra y la escena se
+  leía a destiempo unas veces sí y otras no. Un puntero acelera y frena.
+- **El clic va en el primer tercio de la parada, no al final.** El ritmo de
+  cada interacción es *llega · asienta · pulsa · cambia · se va*, y lo que
+  cambia tiene que TERMINAR de cambiar antes de que el puntero se marche. En
+  SceneAccess el puntero pulsaba en el 23% y se iba en el 23.6% mientras el
+  mando del interruptor seguía cruzando hasta el 24.6%: el efecto llegaba
+  después que su causa.
 - **Las coordenadas del puntero del simulador son geometría, no magia.** Están
   calculadas sobre la retícula del formulario y anotadas en la cabecera del
   archivo. Si tocas la altura de `.f`, el ancho de `.sim__form` o el tamaño de

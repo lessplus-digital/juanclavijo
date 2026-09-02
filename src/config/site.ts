@@ -84,22 +84,22 @@ export const services = [
   {
     n: '01',
     title: 'Producto web a medida',
-    text: 'Del boceto al dominio en producción. Frontend en React o Astro, backend en .NET o Supabase, y una arquitectura que aguanta cuando el negocio crece.',
+    text: 'Del boceto al dominio funcionando. Una web o una plataforma hecha para lo que tú vendes, no una plantilla con tu logo encima, y montada para que aguante cuando lleguen diez veces más clientes.',
   },
   {
     n: '02',
     title: 'Automatización con IA',
-    text: 'Agentes conversacionales, orquestación en n8n e integraciones con LLMs que se comen el trabajo repetitivo: pedidos, soporte, captación y seguimiento.',
+    text: 'Eso que alguien de tu equipo repite cien veces al mes —contestar, pasar datos de un sitio a otro, hacer seguimiento— puede hacerlo un agente a cualquier hora. Tú decides dónde sigue entrando una persona.',
   },
   {
     n: '03',
     title: 'Plataformas SaaS',
-    text: 'Multi-tenant, suscripciones, paneles en tiempo real y control de acceso. Todo lo que separa una demo bonita de un producto que factura.',
+    text: 'Una idea convertida en producto que cobra solo: cada cliente con su cuenta, sus permisos y su suscripción al día. Lo aburrido es justo lo que separa una demo bonita de algo que factura todos los meses.',
   },
   {
     n: '04',
     title: 'Infraestructura y despliegue',
-    text: 'Pipelines, contenedores, dominios, SSL y correo corporativo. Me encargo de que el producto viva, no solo de que compile.',
+    text: 'Dominios, certificados, copias de seguridad, correo corporativo y el aviso cuando algo falla. La parte que nadie ve, y la razón de que un lunes por la mañana todo siga en pie.',
   },
 ] as const;
 
@@ -117,7 +117,7 @@ export const education = [
   {
     title: '+22 certificaciones técnicas',
     place: 'Formación continua',
-    period: '2021 — hoy',
+    period: '2019 — hoy',
   },
 ] as const;
 
@@ -237,9 +237,9 @@ export const sections: SectionDef[] = [
     nav: 'Proyectos',
     index: '02',
     eyebrow: 'Trabajo seleccionado',
-    title: 'Cosas que existen y funcionan',
+    title: 'Algunos proyectos recientes',
     intro:
-      'Casos en producción, con el problema de negocio que había detrás y el número que cambió después.',
+      'Una muestra de lo que hay en producción, no el catálogo entero. De cada uno: el problema de negocio que había detrás y lo que cambió después.',
     enabled: true,
   },
   {

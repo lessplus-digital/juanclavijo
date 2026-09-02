@@ -48,8 +48,11 @@ const projects = defineCollection({
        * que con una animación inventada.
        */
       layout: z.enum(['scene', 'shot']).default('shot'),
-      /** Qué maqueta animada usar. Obligatorio con `layout: scene`. */
-      scene: z.enum(['chat', 'simulator']).optional(),
+      /**
+       * Qué maqueta animada usar. Obligatorio con `layout: scene`.
+       * chat = Plateo · simulator = SPL · access = SOMOS Connection
+       */
+      scene: z.enum(['chat', 'simulator', 'access']).optional(),
       /** Captura dentro de src/assets/. Obligatoria con `layout: shot`. */
       shot: image().optional(),
       /** Orden de aparición: menor primero */

@@ -21,7 +21,8 @@ accent: c1
 #   shot  → tarjeta compacta con la captura del sitio, de dos en dos.
 #           Es lo normal para una web terminada.
 #   scene → fila grande con una maqueta animada. Las escenas están dibujadas a
-#           mano para un producto concreto (chat = Plateo, simulator = SPL);
+#           mano para un producto concreto (chat = Plateo, simulator = SPL,
+#           access = SOMOS);
 #           no reutilices una para un proyecto que no la merece.
 layout: shot
 

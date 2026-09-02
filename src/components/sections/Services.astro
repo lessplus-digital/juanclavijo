@@ -23,16 +23,17 @@ const accents = ['c1', 'c3', 'c2', 'c4'];
       {
         services.map((s, i) => (
           <li
-            class="svc__cell"
-            style={`--accent: var(--${accents[i % accents.length]}); --d: ${i * 70}ms`}
+            class="svc__card"
+            style={`--accent: var(--${accents[i % accents.length]}); --d: ${i * 80}ms`}
             data-reveal
             data-cursor="hot"
           >
             <span class="svc__wash" aria-hidden="true" />
-            <div class="svc__head">
+            <p class="svc__kicker">
               <span class="svc__n mono-num">{s.n}</span>
-              <h3 class="svc__title">{s.title}</h3>
-            </div>
+              <span class="svc__rule" aria-hidden="true" />
+            </p>
+            <h3 class="svc__title">{s.title}</h3>
             <p class="svc__text">{s.text}</p>
           </li>
         ))
@@ -42,78 +43,90 @@ const accents = ['c1', 'c3', 'c2', 'c4'];
 </section>
 
 <style>
-  /* Retícula de servicios: cuatro celdas separadas por filetes, sin cajas.
-     Las etiquetas de tecnología se quitaron a propósito — el stack se cuenta
-     entero en su propia sección y aquí solo dejaban un vacío a la derecha. */
+  /* Cuatro fichas en 2×2. Antes eran cuatro filas a lo ancho con las
+     etiquetas de tecnología alineadas a la derecha: el doble de alto y media
+     retícula vacía. Las tecnologías se cuentan en «Con qué lo construyo». */
   .svc {
+    --pad: clamp(1.3rem, 2.4vw, 1.9rem);
     display: grid;
-    border-block: 1px solid var(--line);
+    gap: clamp(0.8rem, 1.6vw, 1.25rem);
   }
 
-  .svc__cell {
+  .svc__card {
     position: relative;
-    padding: clamp(1.35rem, 3vw, 2rem) clamp(0.6rem, 1.6vw, 1.4rem);
+    display: grid;
+    align-content: start;
+    padding: var(--pad);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
     isolation: isolate;
-    transition: padding-inline 0.55s var(--ease-out);
+    overflow: hidden;
+    transition: border-color 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+  }
+  .svc__card:hover {
+    border-color: color-mix(in oklab, var(--accent) 55%, var(--line));
+    transform: translateY(-4px);
   }
 
-  /* Filete entre celdas: en una columna basta el hermano anterior. */
-  .svc__cell + .svc__cell {
-    border-top: 1px solid var(--line);
-  }
-
+  /* Sin sombra ni panel de vidrio: el relleno de acento es lo único que
+     enciende la ficha, igual que en las filas anteriores. */
   .svc__wash {
     position: absolute;
     inset: 0;
     z-index: -1;
     background: linear-gradient(
-      140deg,
-      color-mix(in oklab, var(--accent) 14%, transparent),
-      transparent 62%
+      160deg,
+      color-mix(in oklab, var(--accent) 12%, transparent),
+      transparent 65%
     );
-    transform: scale(0.96);
-    transform-origin: left top;
     opacity: 0;
-    transition: transform 0.7s var(--ease-out), opacity 0.5s var(--ease-out);
+    transition: opacity 0.55s var(--ease-out);
   }
-  .svc__cell:hover .svc__wash {
-    transform: none;
+  .svc__card:hover .svc__wash {
     opacity: 1;
   }
-  .svc__cell:hover {
-    padding-inline: clamp(1rem, 2.2vw, 1.9rem) clamp(0.6rem, 1.6vw, 1.4rem);
-  }
 
-  /* Número y titular en la misma línea: es lo que recorta la altura. */
-  .svc__head {
+  /* Número + filete que sangra hasta el borde derecho de la ficha: el mismo
+     motivo «cifra — línea» del encabezado de sección y de los proyectos. */
+  .svc__kicker {
     display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: clamp(1.6rem, 4vw, 2.6rem);
   }
 
   .svc__n {
-    flex: none;
     font-size: var(--step--2);
     font-weight: 600;
     letter-spacing: 0.14em;
     color: var(--accent);
   }
 
+  .svc__rule {
+    flex: 1;
+    height: 1px;
+    margin-right: calc(var(--pad) * -1);
+    background: var(--line-strong);
+    transition: background-color 0.5s var(--ease-out);
+  }
+  .svc__card:hover .svc__rule {
+    background: var(--accent);
+  }
+
   .svc__title {
     font-size: var(--step-2);
     letter-spacing: -0.03em;
+    line-height: 1.08;
     text-wrap: balance;
     transition: color 0.45s var(--ease-out);
   }
-  .svc__cell:hover .svc__title {
+  .svc__card:hover .svc__title {
     color: var(--accent);
   }
 
   .svc__text {
-    margin-top: 0.5rem;
-    /* Sangrado hasta el titular: el número queda como manecilla del margen. */
-    margin-left: calc(2ch + 0.75rem);
-    max-width: 44ch;
+    margin-top: 0.6rem;
+    max-width: 42ch;
     font-size: var(--step--1);
     color: var(--ink-2);
   }
@@ -121,21 +134,6 @@ const accents = ['c1', 'c3', 'c2', 'c4'];
   @media (min-width: 760px) {
     .svc {
       grid-template-columns: 1fr 1fr;
-    }
-    /* Con dos columnas el filete horizontal lo llevan las celdas de la
-       segunda fila en adelante, y el vertical las de la derecha. */
-    .svc__cell + .svc__cell {
-      border-top: 0;
-    }
-    .svc__cell:nth-child(n + 3) {
-      border-top: 1px solid var(--line);
-    }
-    .svc__cell:nth-child(2n) {
-      border-left: 1px solid var(--line);
-      padding-inline-start: clamp(1.1rem, 2.4vw, 2rem);
-    }
-    .svc__cell:nth-child(2n):hover {
-      padding-inline-start: clamp(1.5rem, 3vw, 2.5rem);
     }
   }
 </style>

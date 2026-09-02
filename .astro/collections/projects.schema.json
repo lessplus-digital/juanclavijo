@@ -85,7 +85,8 @@
           "type": "string",
           "enum": [
             "chat",
-            "simulator"
+            "simulator",
+            "access"
           ]
         },
         "shot": {

@@ -1,6 +1,30 @@
 ---
+/**
+ * Contacto: cuatro canales, cada uno con su icono y su acento.
+ *
+ * EL CORREO SE DICE UNA SOLA VEZ. Antes iba dos veces —el titular grande y
+ * otra vez como ficha «Correo» de la retícula— y se leía como un descuido.
+ * Ahora la dirección vive solo en la ficha ancha, que ES la del correo: ocupa
+ * la fila entera, lleva la dirección a cuerpo de titular y el botón de copiar.
+ * Debajo van los otros tres canales, iguales entre ellos.
+ *
+ * LOS LOGOTIPOS DE MARCA SE RESUELVEN AL COMPILAR, igual que en el stack
+ * (`brands.ts`): al HTML llega solo la `d` del trazado, sin CDN ni paquete en
+ * el cliente. Los canales que no son marca —correo, CV y LinkedIn— llevan un
+ * icono dibujado a mano, de trazo, sobre el mismo lienzo de 24×24.
+ *
+ * OJO CON LINKEDIN: no se pide a `getBrand`. simple-icons retiró la marca del
+ * catálogo (desde la v14), así que `getBrand('linkedin')` devolvía `null` y el
+ * `<path>` salía sin `d`: el hueco quedaba vacío sin dar ningún error. Va
+ * dibujado a mano como los otros dos, y por eso mismo no hay que volver a
+ * apuntarlo al catálogo.
+ *
+ * EL COLOR ES EL DEL SITIO, NO EL DE LA MARCA, como en el campo de logotipos:
+ * el acento tiñe el icono y el relleno del hover, y cada canal tiene el suyo.
+ */
 import type { SectionDef } from '@/config/site';
 import { profile } from '@/config/site';
+import { getBrand } from '@/config/brands';
 import SectionHead from '@/components/SectionHead.astro';
 
 interface Props {
@@ -8,15 +32,54 @@ interface Props {
 }
 const { section } = Astro.props;
 
+/** Iconos de trazo para lo que no tiene marca. Lienzo 24×24, como simple-icons. */
+const mailPath =
+  'M3.2 7.6A2.6 2.6 0 0 1 5.8 5h12.4a2.6 2.6 0 0 1 2.6 2.6v8.8a2.6 2.6 0 0 1-2.6 2.6H5.8a2.6 2.6 0 0 1-2.6-2.6zM3.6 8l7.2 4.9a2.2 2.2 0 0 0 2.4 0L20.4 8';
+const docPath =
+  'M13.8 3H7.6A1.6 1.6 0 0 0 6 4.6v14.8A1.6 1.6 0 0 0 7.6 21h8.8a1.6 1.6 0 0 0 1.6-1.6V7.2zM13.8 3v4.2H18M12 10.6v5.8M9.6 14l2.4 2.4 2.4-2.4';
+
+/**
+ * «in» de trazo dentro de su marco. Geometría, no un logotipo calcado: base
+ * en 18, altura de x en 10.9 (el arco de la n sube justo hasta ahí) y el punto
+ * de la i en 8.3. El bloque de las dos letras va de 7.3 a 16.7, centrado en el
+ * marco. El punto es un trazo de longitud cero con punta redonda: sale macizo
+ * y del mismo grueso que el asta de la i. Dibujado como circunferencia se veía
+ * como un anillo — al tamaño real el hueco del centro no llegaba a cerrarse.
+ */
+const linkedinPath =
+  'M6.1 3.2h11.8a2.9 2.9 0 0 1 2.9 2.9v11.8a2.9 2.9 0 0 1-2.9 2.9H6.1a2.9 2.9 0 0 1-2.9-2.9V6.1a2.9 2.9 0 0 1 2.9-2.9zM7.3 18v-7.1M7.3 8.3h.01M12.3 18v-7.1M12.3 13.1a2.2 2.2 0 0 1 4.4 0V18';
+
+const arrowPath = 'M5 19 19 5M8.2 5H19v10.8';
+
+/** Los tres que acompañan al correo. El correo va aparte, en la ficha ancha. */
 const channels = [
-  { label: 'Correo', value: profile.email, href: `mailto:${profile.email}` },
   {
     label: 'WhatsApp',
     value: profile.phone,
+    note: 'Respuesta el mismo día',
     href: `https://wa.me/${profile.phoneRaw.replace('+', '')}`,
+    accent: 'c2',
+    path: getBrand('whatsapp')?.path,
+    stroke: false,
   },
-  { label: 'LinkedIn', value: '/juan-pablo-clavijo', href: profile.linkedin },
-  { label: 'CV', value: 'PDF actualizado', href: profile.cv },
+  {
+    label: 'LinkedIn',
+    value: '/juan-pablo-clavijo',
+    note: 'Trayectoria y contactos',
+    href: profile.linkedin,
+    accent: 'c3',
+    path: linkedinPath,
+    stroke: true,
+  },
+  {
+    label: 'Currículum',
+    value: 'CV en PDF',
+    note: 'Versión 2026, al día',
+    href: profile.cv,
+    accent: 'c4',
+    path: docPath,
+    stroke: true,
+  },
 ];
 ---
 
@@ -29,96 +92,243 @@ const channels = [
       intro={section.intro}
     />
 
-    <div class="contact__hero" data-reveal="mask">
-      <a class="contact__mail" href={`mailto:${profile.email}`}>
-        <span class="contact__mailTxt">{profile.email}</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M5 19 19 5M8.2 5H19v10.8"
+    <div class="ch">
+      <article class="ch__lead" style="--accent: var(--c1)" data-reveal>
+        <span class="ch__ico" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             stroke-width="1.6"
             stroke-linecap="round"
-            stroke-linejoin="round"></path>
-        </svg>
-      </a>
-      <button class="contact__copy" type="button" data-copy={profile.email}>
-        <span>Copiar correo</span>
-      </button>
-    </div>
+            stroke-linejoin="round"
+          >
+            <path d={mailPath}></path>
+          </svg>
+        </span>
 
-    <ul class="contact__grid">
+        <div class="ch__leadTxt">
+          <span class="ch__label">Correo</span>
+          <a class="ch__addr" href={`mailto:${profile.email}`}>
+            <span class="ch__addrTxt">{profile.email}</span>
+            <svg class="ch__arrow" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d={arrowPath}
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+          </a>
+          <span class="ch__note">Para propuestas, alcances y presupuestos</span>
+        </div>
+
+        <button class="ch__copy" type="button" data-copy={profile.email}>
+          <span>Copiar correo</span>
+        </button>
+      </article>
+
       {
         channels.map((c, i) => (
-          <li data-reveal style={`--d:${i * 80}ms`}>
-            <a
-              href={c.href}
-              target={c.href.startsWith('http') || c.href.endsWith('.pdf') ? '_blank' : undefined}
-              rel="noreferrer"
-            >
-              <span class="contact__label">{c.label}</span>
-              <span class="contact__value">{c.value}</span>
-              <span class="contact__arrow" aria-hidden="true">
-                ↗
-              </span>
-            </a>
-          </li>
+          <a
+            class="ch__item"
+            style={`--accent: var(--${c.accent}); --d:${(i + 1) * 90}ms`}
+            data-reveal
+            href={c.href}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span class="ch__ico" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill={c.stroke ? 'none' : 'currentColor'}
+                stroke={c.stroke ? 'currentColor' : undefined}
+                stroke-width={c.stroke ? '1.6' : undefined}
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d={c.path} />
+              </svg>
+            </span>
+
+            <span class="ch__label">{c.label}</span>
+            <span class="ch__value">{c.value}</span>
+            <span class="ch__note">{c.note}</span>
+
+            <svg class="ch__arrow" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d={arrowPath}
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </a>
         ))
       }
-    </ul>
-
+    </div>
   </div>
 </section>
 
 <style>
-  .contact__hero {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem 1.6rem;
-    padding-block: clamp(1.4rem, 3vw, 2.4rem);
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
+  /* Sube el bloque 15px contra el campo de logotipos. El hueco entre ambos lo
+     pone el padding inferior de la sección anterior (esta ya entra con
+     padding-top 0 por `.section + .section`), y bajarlo allí encogería el aire
+     de todas las secciones. Es un tirón fijo a propósito: no escala. */
+  .contact {
+    padding-top: 0px;
   }
 
-  .contact__mail {
+  .ch {
+    display: grid;
+    gap: clamp(0.7rem, 1.4vw, 1rem);
+  }
+
+  /* ── Piel común de las cuatro fichas ──────────────────────────────────── */
+  .ch__lead,
+  .ch__item {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: clamp(1.25rem, 2.6vw, 1.9rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg-2);
+    transition: border-color 0.45s var(--ease-out), transform 0.5s var(--ease-out),
+      box-shadow 0.5s var(--ease-out);
+  }
+
+  /* El relleno de acento es una lámina que se enciende: nada cambia de sitio
+     al pasar el ratón, solo la opacidad. */
+  .ch__lead::before,
+  .ch__item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      to top,
+      color-mix(in oklab, var(--accent) 15%, transparent),
+      transparent 72%
+    );
+    opacity: 0;
+    transition: opacity 0.5s var(--ease-out);
+  }
+
+  .ch__lead:hover,
+  .ch__lead:focus-within,
+  .ch__item:hover,
+  .ch__item:focus-visible {
+    border-color: color-mix(in oklab, var(--accent) 55%, var(--line));
+    box-shadow: var(--shadow-soft);
+  }
+  .ch__lead:hover::before,
+  .ch__lead:focus-within::before,
+  .ch__item:hover::before,
+  .ch__item:focus-visible::before {
+    opacity: 1;
+  }
+  .ch__item:hover,
+  .ch__item:focus-visible {
+    transform: translateY(-3px);
+  }
+
+  /* ── El icono ─────────────────────────────────────────────────────────── */
+  .ch__ico {
+    display: grid;
+    place-items: center;
+    width: clamp(42px, 5vw, 52px);
+    height: clamp(42px, 5vw, 52px);
+    border-radius: 15px;
+    color: var(--accent);
+    background: color-mix(in oklab, var(--accent) 13%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 22%, transparent);
+    transition: background-color 0.45s var(--ease-out), color 0.45s var(--ease-out),
+      transform 0.55s var(--ease-spring);
+  }
+  .ch__ico svg {
+    width: 52%;
+    height: 52%;
+  }
+  .ch__lead:hover .ch__ico,
+  .ch__lead:focus-within .ch__ico,
+  .ch__item:hover .ch__ico,
+  .ch__item:focus-visible .ch__ico {
+    background: var(--accent);
+    color: var(--on-accent);
+    transform: translateY(-2px) rotate(-4deg);
+  }
+
+  /* ── Ficha ancha: el correo ───────────────────────────────────────────── */
+  .ch__lead {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: clamp(0.9rem, 2vw, 1.4rem);
+  }
+
+  .ch__leadTxt {
+    min-width: 0;
+  }
+  /* Debajo de un titular de 2.1rem, los 0.1rem de las fichas chicas se pegan. */
+  .ch__leadTxt .ch__note {
+    margin-top: 0.4rem;
+  }
+
+  .ch__addr {
     display: inline-flex;
     align-items: center;
-    gap: 0.4em;
+    gap: 0.35em;
+    margin-top: 0.2rem;
     font-family: var(--font-display);
-    font-size: clamp(1.7rem, 6.4vw, 4.4rem);
+    font-size: clamp(1.3rem, 4.4vw, 2.1rem);
     font-weight: var(--display-weight);
-    line-height: 1;
-    letter-spacing: -0.045em;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
     font-variation-settings: var(--display-fvs);
     word-break: break-word;
     transition: color 0.45s var(--ease-out);
   }
-  .contact__mail svg {
-    width: 0.5em;
-    height: 0.5em;
-    flex: none;
-    transition: transform 0.6s var(--ease-spring);
+  .ch__addr:hover {
+    color: var(--accent);
   }
-  .contact__mail:hover {
-    color: var(--c1);
-  }
-  .contact__mail:hover svg {
-    transform: translate(0.09em, -0.09em) rotate(8deg);
-  }
-
-  .contact__mailTxt {
+  .ch__addrTxt {
     background-image: linear-gradient(currentColor, currentColor);
     background-size: 0% 1.5px;
     background-repeat: no-repeat;
     background-position: 0 100%;
     transition: background-size 0.6s var(--ease-out);
   }
-  .contact__mail:hover .contact__mailTxt {
+  .ch__addr:hover .ch__addrTxt {
     background-size: 100% 1.5px;
   }
 
-  .contact__copy {
+  /* La ficha del correo llevaba un sobre de 15rem como filigrana en la esquina
+     y no funcionaba: la ficha mide la mitad de alto, así que solo se veía un
+     trozo de arco cortado, y el botón de copiar caía justo encima. En su lugar,
+     un lavado del acento por la derecha, que se lee igual de bien a cualquier
+     alto de ficha y deja el botón limpio. */
+  .ch__lead::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 0 auto;
+    width: min(52%, 34rem);
+    background: radial-gradient(
+      130% 150% at 100% 50%,
+      color-mix(in oklab, var(--accent) 13%, transparent),
+      transparent 68%
+    );
+    pointer-events: none;
+  }
+
+  .ch__copy {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 0.9rem;
     padding: 0.55em 1.1em;
     border: 1px solid var(--line-strong);
     border-radius: 999px;
@@ -130,80 +340,95 @@ const channels = [
     transition: border-color 0.35s var(--ease-out), color 0.35s var(--ease-out),
       transform 0.4s var(--ease-spring);
   }
-  .contact__copy:hover {
-    border-color: var(--c1);
+  .ch__copy:hover {
+    border-color: var(--accent);
     color: var(--ink);
     transform: translateY(-2px);
   }
-  .contact__copy[data-done] {
+  .ch__copy[data-done] {
     border-color: var(--c2);
     color: var(--c2);
   }
 
-  .contact__grid {
+  /* ── Las otras tres fichas ────────────────────────────────────────────── */
+  .ch__item {
     display: grid;
-    gap: 1px;
-    margin-top: clamp(2rem, 4vw, 3rem);
-    background: var(--line);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    overflow: hidden;
+    align-content: start;
+    gap: 0.15rem;
   }
-  .contact__grid a {
-    position: relative;
-    display: grid;
-    gap: 0.2rem;
-    padding: clamp(1.1rem, 2.4vw, 1.6rem);
-    background: var(--bg);
-    transition: background-color 0.4s var(--ease-out);
-    height: 100%;
+  /* El hueco entre el icono y el texto es lo que le da aire a la ficha. */
+  .ch__item .ch__ico {
+    margin-bottom: clamp(1.4rem, 3vw, 2.2rem);
   }
-  .contact__grid a:hover {
-    background: var(--bg-2);
-  }
-  .contact__label {
+
+  .ch__label {
     font-family: var(--font-alt);
     font-size: var(--step--2);
     letter-spacing: 0.13em;
     text-transform: uppercase;
     color: var(--ink-3);
   }
-  .contact__value {
+  .ch__value {
     font-size: var(--step-0);
     font-weight: 500;
     word-break: break-word;
   }
-  .contact__arrow {
-    position: absolute;
-    top: clamp(1.1rem, 2.4vw, 1.6rem);
-    right: clamp(1.1rem, 2.4vw, 1.6rem);
-    color: var(--ink-3);
-    opacity: 0;
-    transform: translate(-4px, 4px);
-    transition: opacity 0.4s var(--ease-out), transform 0.5s var(--ease-spring),
-      color 0.4s var(--ease-out);
-  }
-  .contact__grid a:hover .contact__arrow {
-    opacity: 1;
-    transform: none;
-    color: var(--c1);
-  }
-
-  .contact__note {
-    margin-top: clamp(1.4rem, 3vw, 2rem);
-    max-width: 52ch;
+  .ch__note {
+    margin-top: 0.1rem;
     font-size: var(--step--1);
     color: var(--ink-3);
   }
 
-  @media (min-width: 640px) {
-    .contact__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* ── La flecha ────────────────────────────────────────────────────────── */
+  .ch__arrow {
+    flex: none;
+    color: var(--ink-3);
+    transition: transform 0.55s var(--ease-spring), color 0.4s var(--ease-out),
+      opacity 0.4s var(--ease-out);
+  }
+  /* En el correo va pegada al texto y se mide con él. */
+  .ch__addr .ch__arrow {
+    width: 0.5em;
+    height: 0.5em;
+    color: inherit;
+  }
+  .ch__addr:hover .ch__arrow {
+    transform: translate(0.09em, -0.09em) rotate(8deg);
+  }
+  .ch__item .ch__arrow {
+    position: absolute;
+    top: clamp(1.25rem, 2.6vw, 1.9rem);
+    right: clamp(1.25rem, 2.6vw, 1.9rem);
+    width: 1.05rem;
+    height: 1.05rem;
+    opacity: 0;
+    transform: translate(-5px, 5px);
+  }
+  .ch__item:hover .ch__arrow,
+  .ch__item:focus-visible .ch__arrow {
+    opacity: 1;
+    transform: none;
+    color: var(--accent);
+  }
+
+  @media (min-width: 560px) {
+    .ch__lead {
+      grid-template-columns: auto 1fr auto;
+    }
+    .ch__copy {
+      grid-column: 3;
+      justify-self: end;
+      align-self: center;
+      margin-top: 0;
     }
   }
-  @media (min-width: 1000px) {
-    .contact__grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  @media (min-width: 860px) {
+    .ch {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .ch__lead {
+      grid-column: 1 / -1;
     }
   }
 </style>

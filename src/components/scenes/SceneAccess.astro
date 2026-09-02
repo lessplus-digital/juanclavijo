@@ -1,0 +1,1228 @@
+---
+/**
+ * Escena de SOMOS Connection: el widget de accesibilidad, usándose solo.
+ *
+ * Lo que se enseña NO es la web, es la herramienta que se construyó para ella:
+ * el icono de la esquina inferior izquierda. El puntero lo pulsa, el panel se
+ * abre y, opción a opción, la página cambia delante del visitante — contraste
+ * alto, texto más grande, enlaces subrayados y movimiento detenido. Catorce
+ * segundos, todo en CSS: ni GIF, ni vídeo, ni JS de animación.
+ *
+ * POR QUÉ EL HERO VA ESPEJADO
+ * En la web real el texto está a la izquierda y el retrato a la derecha. Aquí
+ * va al revés a propósito: el panel se abre desde la esquina inferior
+ * IZQUIERDA y taparía justo la columna de texto, que es donde se ven los
+ * cambios. Con el retrato debajo, el panel oculta la parte decorativa y deja
+ * libre la que cuenta la historia.
+ *
+ * CÓMO ESTÁ SINCRONIZADO
+ * Como en SceneSimulator: NO hay `animation-delay`. Cada pieza lleva sus
+ * propios porcentajes sobre el mismo ciclo de 14s (`--loop`), todas se quedan
+ * puestas hasta el 88% y todas se apagan juntas en el 90%.
+ *
+ * EL RITMO DE CADA PARADA: llega · asienta · pulsa · cambia · se va.
+ *   fila 1 → llega 19 · pulsa 20.6 · mando 20.8-22.4 · página 21.4-23.4 · va 24
+ *   y lo mismo cada diez puntos: 29-34, 39-44, 49-54.
+ * El clic va en el PRIMER tercio de la parada. Antes caía al final —pulsaba en
+ * el 23 y se iba en el 23.6, con el mando cruzando hasta el 24.6—, así que el
+ * interruptor terminaba de encenderse después de que el puntero se hubiera
+ * marchado y la escena se leía a destiempo.
+ *
+ * LA CURVA DEL PUNTERO ES `--ease-io`, NO `--ease-out`. `--ease-out` es
+ * cubic-bezier(0.16, 1, 0.3, 1): recorre casi todo el trayecto en el primer
+ * quinto del tramo. El puntero aparecía de golpe sobre el interruptor y se
+ * quedaba ahí parado hasta el clic, y como los tramos no miden todos lo mismo,
+ * la espera cambiaba de una fila a otra. Un puntero acelera y frena.
+ *
+ * LOS CAMBIOS DE COLOR VAN EN PROPIEDADES REGISTRADAS
+ * El contraste alto toca el fondo, la tinta, el acento y las líneas de una
+ * decena de elementos. En vez de una decena de `@keyframes` gemelos, las seis
+ * variables se registran con `@property` (`<color>`, `inherits: true`) y se
+ * animan UNA sola vez sobre `.ac__site`: el valor heredado baja a todos los
+ * hijos, y hasta los degradados del retrato se recalculan solos. En un
+ * navegador sin `@property` el cambio no interpola —salta— pero se ve igual.
+ *
+ * LAS COORDENADAS DEL PUNTERO SON GEOMETRÍA, NO MAGIA
+ * Se miden sobre el lienzo (52.63 × 42.1em), que es el contenedor de
+ * `.ac__cursor`. Botón en 3.9 / 38.2em; el panel arranca en y = 18.3em, con
+ * cabecera de 2.9em y filas de 2.9em, así que los interruptores caen en
+ * x = 17.6em e y = 23.0 / 25.9 / 28.8 / 31.7em. Si cambias el alto de `.sw`,
+ * el de `.ac__panel-head` o el ancho del panel, hay que recalcular
+ * `@keyframes ac-cursor`.
+ *
+ * Medidas en `em`, nunca en px: el escenario fija el `font-size` en `cqw`.
+ */
+---
+
+<div class="ac" data-scene-root>
+  <!-- ── La web del cliente ──────────────────────────────────────────── -->
+  <div class="ac__site">
+    <header class="st__bar">
+      <span class="st__logo">Somos<b>Connection</b></span>
+      <nav class="st__nav">
+        <span class="is-on">Inicio</span><span>Servicios</span><span>Portafolio</span><span
+          >Nosotros</span
+        ><span>Blog</span>
+      </nav>
+      <span class="st__cta">Contacto</span>
+    </header>
+
+    <!-- La portada real lleva un retrato con maquillaje de la marca. Aquí no
+         se imita la foto: se queda su atmósfera —luz baja sobre negro y unos
+         trazos del acento—, que además se recolorea sola con el contraste
+         alto. Una silueta dibujada se leía como un muñeco, no como un retrato. -->
+    <div class="st__figure">
+      <i class="fg__mass fg__mass--1"></i>
+      <i class="fg__mass fg__mass--2"></i>
+      <i class="fg__stroke fg__stroke--1"></i>
+      <i class="fg__stroke fg__stroke--2"></i>
+      <i class="fg__stroke fg__stroke--3"></i>
+      <div class="st__sheen"><i></i></div>
+      <span class="fg__fade"></span>
+    </div>
+
+    <div class="st__hero">
+      <p class="st__eyebrow">Agencia de marketing digital</p>
+      <h2 class="st__title">
+        <span>Somos lo que</span><em>tu negocio</em><span>necesita</span>
+      </h2>
+      <span class="st__rule"></span>
+      <p class="st__copy">
+        Gestión de redes, desarrollo web, branding e inteligencia artificial para que tu negocio se
+        vea mejor y llegue más lejos.
+      </p>
+      <div class="st__go">
+        <span class="go"><i class="go__play"></i>Demo Reel</span>
+        <span class="go">Ver portafolio</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── El widget ───────────────────────────────────────────────────── -->
+  <div class="ac__tip"><span>Accesibilidad</span></div>
+
+  <div class="ac__fab">
+    <span class="fab__halo"><i></i></span>
+    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+      <circle cx="12" cy="4.4" r="2.15" fill="currentColor"></circle>
+      <path
+        d="M4.4 8.5h15.2M12 8.5v6.1M12 14.6l-3.3 6.1M12 14.6l3.3 6.1"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"></path>
+    </svg>
+  </div>
+
+  <div class="ac__panel">
+    <div class="ac__panel-head">
+      <span class="ph__mark">
+        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+          <circle cx="12" cy="4.4" r="2.15" fill="currentColor"></circle>
+          <path
+            d="M4.4 8.5h15.2M12 8.5v6.1M12 14.6l-3.3 6.1M12 14.6l3.3 6.1"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"></path>
+        </svg>
+      </span>
+      <b>Accesibilidad</b>
+      <span class="ph__x"></span>
+    </div>
+
+    <div class="ac__rows">
+      <div class="sw sw--1">
+        <span class="sw__ico"><i class="ico-contrast"></i></span>
+        <span class="sw__label">Contraste alto</span>
+        <span class="sw__track"><i></i></span>
+      </div>
+      <div class="sw sw--2">
+        <span class="sw__ico"><b class="ico-type">Aa</b></span>
+        <span class="sw__label">Texto más grande</span>
+        <span class="sw__track"><i></i></span>
+      </div>
+      <div class="sw sw--3">
+        <span class="sw__ico"><b class="ico-link">ab</b></span>
+        <span class="sw__label">Subrayar enlaces</span>
+        <span class="sw__track"><i></i></span>
+      </div>
+      <div class="sw sw--4">
+        <span class="sw__ico"><i class="ico-pause"></i></span>
+        <span class="sw__label">Detener movimiento</span>
+        <span class="sw__track"><i></i></span>
+      </div>
+    </div>
+
+    <div class="ac__panel-foot">Se recuerda en este navegador</div>
+  </div>
+
+  <div class="ac__toast"><i></i><span>Preferencias aplicadas</span></div>
+
+  <svg class="ac__cursor" viewBox="0 0 24 24" width="24" height="24">
+    <path
+      d="M5 2.4 19.4 12.1l-6.2.7-3.1 5.6z"
+      fill="#0c0c0c"
+      stroke="#fff"
+      stroke-width="1.6"
+      stroke-linejoin="round"></path>
+  </svg>
+</div>
+
+<style>
+  /* Las seis variables que cambia el contraste alto. Registradas para que
+     interpolen; heredables para que baste animarlas en `.ac__site`. */
+  @property --ac-bg {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #0c0c0c;
+  }
+  @property --ac-nav {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #151515;
+  }
+  @property --ac-ink {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #ffffff;
+  }
+  @property --ac-ink-2 {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #a9b2b0;
+  }
+  @property --ac-accent {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #5cd2b9;
+  }
+  @property --ac-line {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: rgb(255 255 255 / 0.11);
+  }
+
+  /* Paleta de SOMOS: el negro de la web, la menta de la marca y el naranja
+     del propio widget. El amarillo aparece solo dentro del modo de contraste
+     alto — es la señal de que la página ha cambiado, no un color de marca. */
+  .ac {
+    --mint: #5cd2b9;
+    --amber: #af610e;
+    --loop: 14s;
+
+    position: absolute;
+    inset: 0;
+    background: #0c0c0c;
+    font-family: var(--font-sans);
+    color: #fff;
+  }
+
+  /* ── La web ─────────────────────────────────────────────────────────── */
+  .ac__site {
+    --ac-bg: #0c0c0c;
+    --ac-nav: #151515;
+    --ac-ink: #ffffff;
+    --ac-ink-2: #a9b2b0;
+    --ac-accent: #5cd2b9;
+    --ac-line: rgb(255 255 255 / 0.11);
+
+    position: absolute;
+    inset: 0;
+    background: var(--ac-bg);
+    color: var(--ac-ink);
+    overflow: hidden;
+    animation: ac-contrast var(--loop) var(--ease-out) infinite both;
+  }
+
+  /* Barra de navegación */
+  .st__bar {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 1.6em;
+    height: 3.6em;
+    padding: 0 2.2em;
+    background: var(--ac-nav);
+    border-bottom: 1px solid var(--ac-line);
+  }
+  .st__logo {
+    display: grid;
+    font-family: var(--font-display);
+    font-size: 0.86em;
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: var(--ac-ink);
+  }
+  .st__logo b {
+    font-size: 0.5em;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: var(--ac-accent);
+  }
+
+  .st__nav {
+    display: flex;
+    gap: 1.5em;
+    margin: 0 auto;
+  }
+  /* Son <span>, no <a>: la tarjeta entera de ProjectRow ya es un enlace y el
+     navegador parte el DOM al encontrar un <a> dentro de otro <a>. La escena
+     es decorativa (aria-hidden), así que no pierde nada. */
+  .st__nav span {
+    position: relative;
+    font-size: 0.66em;
+    font-weight: 500;
+    color: var(--ac-ink);
+    animation: ac-grow-nav var(--loop) var(--ease-out) infinite both;
+  }
+  .st__nav .is-on {
+    color: var(--ac-accent);
+  }
+  /* El subrayado no se enciende con `text-decoration` desde una animación:
+     es una barra propia que se despliega. */
+  .st__nav span::after,
+  .go::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.3em;
+    height: 0.08em;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: ac-underline var(--loop) var(--ease-out) infinite both;
+  }
+
+  .st__cta {
+    padding: 0.6em 1.2em;
+    border-radius: 0.4em;
+    background: var(--ac-accent);
+    color: #06110e;
+    font-size: 0.6em;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* Retrato */
+  .st__figure {
+    position: absolute;
+    left: 0;
+    top: 3.6em;
+    bottom: 0;
+    width: 25em;
+    overflow: hidden;
+  }
+  .fg__mass {
+    position: absolute;
+    border-radius: 50%;
+  }
+  /* Dos luces, no dos objetos: muy grandes y desenfocadas, para que el ojo
+     lea un fondo iluminado y no dos manchas con contorno. */
+  .fg__mass--1 {
+    left: -6em;
+    top: -5em;
+    width: 30em;
+    height: 32em;
+    background: radial-gradient(50% 50% at 50% 50%, #35423e, transparent 68%);
+    filter: blur(1.4em);
+  }
+  .fg__mass--2 {
+    left: 2em;
+    top: 13em;
+    width: 26em;
+    height: 30em;
+    background: radial-gradient(50% 50% at 50% 50%, #1e2926, transparent 70%);
+    filter: blur(1.8em);
+  }
+  .fg__stroke {
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(0.14em);
+  }
+  .fg__stroke--1 {
+    left: 4.4em;
+    top: 5.8em;
+    width: 9.2em;
+    height: 1em;
+    background: color-mix(in oklab, var(--ac-accent) 68%, transparent);
+    transform: rotate(-13deg);
+  }
+  .fg__stroke--2 {
+    left: 10.6em;
+    top: 9.6em;
+    width: 5.4em;
+    height: 1.7em;
+    background: color-mix(in oklab, var(--ac-accent) 46%, transparent);
+    transform: rotate(9deg);
+  }
+  .fg__stroke--3 {
+    left: 2.8em;
+    top: 13.4em;
+    width: 10.4em;
+    height: 1.2em;
+    background: color-mix(in oklab, var(--ac-accent) 28%, transparent);
+    transform: rotate(-5deg);
+  }
+  /* Degradado que funde el retrato con el fondo, como el corte del sitio. */
+  .fg__fade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 45%, var(--ac-bg) 96%);
+  }
+  /* El brillo que recorre el retrato: es el «movimiento» que apaga la cuarta
+     opción del panel. */
+  .st__sheen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    animation: ac-motion var(--loop) var(--ease-out) infinite both;
+  }
+  .st__sheen i {
+    position: absolute;
+    top: -20%;
+    left: -8em;
+    width: 6em;
+    height: 140%;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.13), transparent);
+    animation: ac-sweep 5.2s var(--ease-io) infinite;
+  }
+
+  /* Columna de texto */
+  .st__hero {
+    position: absolute;
+    left: 26.4em;
+    right: 3em;
+    top: 11.4em;
+  }
+  .st__eyebrow {
+    font-size: 0.62em;
+    font-weight: 600;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--ac-accent);
+    animation: ac-grow-eyebrow var(--loop) var(--ease-out) infinite both;
+  }
+  .st__title {
+    margin-top: 0.5em;
+    font-family: var(--font-display);
+    font-size: 3em;
+    font-weight: 800;
+    line-height: 0.96;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+    color: var(--ac-ink);
+  }
+  .st__title span,
+  .st__title em {
+    display: block;
+  }
+  .st__title em {
+    font-style: normal;
+    color: var(--ac-accent);
+  }
+  .st__rule {
+    display: block;
+    width: 3.4em;
+    height: 0.14em;
+    margin: 1.1em 0;
+    background: var(--ac-accent);
+  }
+  .st__copy {
+    max-width: 20em;
+    font-size: 0.68em;
+    line-height: 1.6;
+    color: var(--ac-ink-2);
+    /* Aquí sí interesa animar `font-size`: es un párrafo en flujo, no una caja
+       cuya geometría dependa de su propio cuerpo. Lo que hay debajo baja. */
+    animation: ac-grow-copy var(--loop) var(--ease-out) infinite both;
+  }
+  .st__go {
+    display: flex;
+    align-items: center;
+    gap: 1.8em;
+    margin-top: 1.7em;
+  }
+  .go {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7em;
+    font-size: 0.66em;
+    font-weight: 600;
+    color: var(--ac-accent);
+    animation: ac-grow-go var(--loop) var(--ease-out) infinite both;
+  }
+  .go__play {
+    position: relative;
+    display: block;
+    width: 2.1em;
+    height: 2.1em;
+    border-radius: 50%;
+    background: var(--ac-accent);
+  }
+  .go__play::after {
+    content: '';
+    position: absolute;
+    left: 0.82em;
+    top: 0.6em;
+    border-left: 0.7em solid var(--ac-bg);
+    border-top: 0.45em solid transparent;
+    border-bottom: 0.45em solid transparent;
+  }
+
+  /* ── El botón del widget ────────────────────────────────────────────── */
+  .ac__fab {
+    position: absolute;
+    left: 2.2em;
+    bottom: 2.2em;
+    display: grid;
+    place-items: center;
+    width: 3.4em;
+    height: 3.4em;
+    border-radius: 50%;
+    background: var(--amber);
+    color: #fff;
+    box-shadow: 0 0.8em 1.8em -0.5em rgb(0 0 0 / 0.8);
+    animation: ac-fab var(--loop) var(--ease-out) infinite both;
+  }
+  .ac__fab > svg {
+    position: relative;
+    z-index: 1;
+    width: 1.9em;
+    height: 1.9em;
+  }
+  /* El halo late en su propio bucle; la envoltura es la que lo apaga cuando
+     se marca «detener movimiento». Dos animaciones sobre `opacity` en el
+     mismo elemento se pisarían. */
+  .fab__halo {
+    position: absolute;
+    inset: 0;
+    animation: ac-motion var(--loop) var(--ease-out) infinite both;
+  }
+  .fab__halo i {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 0.16em solid var(--amber);
+    animation: ac-pulse 2.6s var(--ease-out) infinite;
+  }
+
+  .ac__tip {
+    position: absolute;
+    left: 6.4em;
+    bottom: 3.05em;
+    padding: 0.34em 0.62em;
+    border-radius: 0.4em;
+    background: #fff;
+    color: #14100b;
+    font-weight: 600;
+    white-space: nowrap;
+    animation: ac-tip var(--loop) var(--ease-out) infinite both;
+  }
+  .ac__tip span {
+    font-size: 0.68em;
+  }
+  .ac__tip::before {
+    content: '';
+    position: absolute;
+    left: -0.3em;
+    top: 50%;
+    width: 0.7em;
+    height: 0.7em;
+    margin-top: -0.35em;
+    background: #fff;
+    transform: rotate(45deg);
+  }
+
+  /* ── El panel ───────────────────────────────────────────────────────── */
+  /* El panel NO entra en el contraste alto: es la herramienta, no la página.
+     Sus colores son fijos para que siga legible en los dos estados. */
+  .ac__panel {
+    position: absolute;
+    left: 2.2em;
+    bottom: 6.6em;
+    width: 17.4em;
+    padding: 0 0.7em 0.75em;
+    border-radius: 0.9em;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    background: #17191a;
+    box-shadow: 0 1.6em 3.4em -1em rgb(0 0 0 / 0.75);
+    transform-origin: 0 100%;
+    animation: ac-panel var(--loop) var(--ease-spring) infinite both;
+  }
+
+  .ac__panel-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    height: 2.9em;
+    margin: 0 -0.7em;
+    padding: 0 0.85em;
+    border-bottom: 1px solid rgb(255 255 255 / 0.09);
+  }
+  .ph__mark {
+    display: grid;
+    place-items: center;
+    width: 1.7em;
+    height: 1.7em;
+    border-radius: 50%;
+    background: var(--amber);
+    color: #fff;
+  }
+  .ph__mark svg {
+    width: 1em;
+    height: 1em;
+  }
+  .ac__panel-head b {
+    font-size: 0.7em;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .ph__x {
+    position: relative;
+    width: 0.8em;
+    height: 0.8em;
+    margin-left: auto;
+    opacity: 0.45;
+  }
+  .ph__x::before,
+  .ph__x::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 0.09em;
+    background: #fff;
+  }
+  .ph__x::before {
+    transform: rotate(45deg);
+  }
+  .ph__x::after {
+    transform: rotate(-45deg);
+  }
+
+  .ac__rows {
+    padding-top: 0.35em;
+  }
+
+  /* Cada fila mide 2.9em: es lo que fija la Y del puntero. */
+  .sw {
+    display: flex;
+    align-items: center;
+    gap: 0.7em;
+    height: 2.9em;
+  }
+  .sw__ico {
+    display: grid;
+    place-items: center;
+    width: 1.75em;
+    height: 1.75em;
+    border-radius: 0.45em;
+    background: rgb(255 255 255 / 0.07);
+    color: #fff;
+  }
+  .sw__label {
+    font-size: 0.66em;
+    color: #e6e9e8;
+  }
+  .ico-contrast {
+    width: 0.95em;
+    height: 0.95em;
+    border-radius: 50%;
+    border: 0.11em solid #fff;
+    background: linear-gradient(90deg, #fff 50%, transparent 50%);
+  }
+  .ico-type {
+    font-size: 0.6em;
+    font-weight: 700;
+  }
+  .ico-link {
+    font-size: 0.6em;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.12em;
+  }
+  .ico-pause {
+    width: 0.72em;
+    height: 0.85em;
+    border-left: 0.24em solid #fff;
+    border-right: 0.24em solid #fff;
+  }
+
+  .sw__track {
+    position: relative;
+    width: 2.2em;
+    height: 1.2em;
+    margin-left: auto;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.14);
+  }
+  .sw__track i {
+    position: absolute;
+    left: 0.16em;
+    top: 0.16em;
+    width: 0.88em;
+    height: 0.88em;
+    border-radius: 50%;
+    background: #fff;
+  }
+  .sw--1 .sw__track {
+    animation: ac-track-1 var(--loop) var(--ease-out) infinite both;
+  }
+  .sw--2 .sw__track {
+    animation: ac-track-2 var(--loop) var(--ease-out) infinite both;
+  }
+  .sw--3 .sw__track {
+    animation: ac-track-3 var(--loop) var(--ease-out) infinite both;
+  }
+  .sw--4 .sw__track {
+    animation: ac-track-4 var(--loop) var(--ease-out) infinite both;
+  }
+  .sw--1 .sw__track i {
+    animation: ac-knob-1 var(--loop) var(--ease-spring) infinite both;
+  }
+  .sw--2 .sw__track i {
+    animation: ac-knob-2 var(--loop) var(--ease-spring) infinite both;
+  }
+  .sw--3 .sw__track i {
+    animation: ac-knob-3 var(--loop) var(--ease-spring) infinite both;
+  }
+  .sw--4 .sw__track i {
+    animation: ac-knob-4 var(--loop) var(--ease-spring) infinite both;
+  }
+
+  .ac__panel-foot {
+    padding-top: 0.6em;
+    border-top: 1px solid rgb(255 255 255 / 0.09);
+    font-size: 0.56em;
+    letter-spacing: 0.03em;
+    color: #8d9997;
+    text-align: center;
+  }
+
+  /* ── Puntero y aviso ────────────────────────────────────────────────── */
+  .ac__cursor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1.5em;
+    height: 1.5em;
+    filter: drop-shadow(0 0.2em 0.3em rgb(0 0 0 / 0.5));
+    animation: ac-cursor var(--loop) var(--ease-io) infinite both,
+      ac-press var(--loop) linear infinite both;
+  }
+
+  .ac__toast {
+    position: absolute;
+    right: 2.6em;
+    bottom: 3.4em;
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    padding: 0.5em 0.85em;
+    border-radius: 999px;
+    background: #fff;
+    color: #0c0c0c;
+    font-weight: 600;
+    box-shadow: 0 1em 2.2em -0.8em rgb(0 0 0 / 0.8);
+    animation: ac-toast var(--loop) var(--ease-spring) infinite both;
+  }
+  .ac__toast span {
+    font-size: 0.66em;
+  }
+  .ac__toast i {
+    width: 0.7em;
+    height: 0.7em;
+    border-radius: 50%;
+    background: var(--mint);
+  }
+
+  /* ── Animaciones ────────────────────────────────────────────────────── */
+  /* Contraste alto: seis variables de golpe, heredadas por toda la página. */
+  @keyframes ac-contrast {
+    0%,
+    21.4% {
+      --ac-bg: #0c0c0c;
+      --ac-nav: #151515;
+      --ac-ink: #ffffff;
+      --ac-ink-2: #a9b2b0;
+      --ac-accent: #5cd2b9;
+      --ac-line: rgb(255 255 255 / 0.11);
+    }
+    23.4%,
+    88% {
+      --ac-bg: #000000;
+      --ac-nav: #000000;
+      --ac-ink: #ffffff;
+      --ac-ink-2: #ffffff;
+      --ac-accent: #ffe14d;
+      --ac-line: rgb(255 255 255 / 0.6);
+    }
+    90%,
+    100% {
+      --ac-bg: #0c0c0c;
+      --ac-nav: #151515;
+      --ac-ink: #ffffff;
+      --ac-ink-2: #a9b2b0;
+      --ac-accent: #5cd2b9;
+      --ac-line: rgb(255 255 255 / 0.11);
+    }
+  }
+
+  /* Texto más grande: cuatro cuerpos distintos, un solo momento. */
+  @keyframes ac-grow-copy {
+    0%,
+    31.4% {
+      font-size: 0.68em;
+    }
+    33.4%,
+    88% {
+      font-size: 0.84em;
+    }
+    90%,
+    100% {
+      font-size: 0.68em;
+    }
+  }
+  @keyframes ac-grow-eyebrow {
+    0%,
+    31.4% {
+      font-size: 0.62em;
+    }
+    33.4%,
+    88% {
+      font-size: 0.74em;
+    }
+    90%,
+    100% {
+      font-size: 0.62em;
+    }
+  }
+  @keyframes ac-grow-go {
+    0%,
+    31.4% {
+      font-size: 0.66em;
+    }
+    33.4%,
+    88% {
+      font-size: 0.8em;
+    }
+    90%,
+    100% {
+      font-size: 0.66em;
+    }
+  }
+  @keyframes ac-grow-nav {
+    0%,
+    31.4% {
+      font-size: 0.66em;
+    }
+    33.4%,
+    88% {
+      font-size: 0.78em;
+    }
+    90%,
+    100% {
+      font-size: 0.66em;
+    }
+  }
+
+  @keyframes ac-underline {
+    0%,
+    41.4% {
+      transform: scaleX(0);
+    }
+    43.4%,
+    88% {
+      transform: scaleX(1);
+    }
+    90%,
+    100% {
+      transform: scaleX(0);
+    }
+  }
+
+  /* Detener movimiento: apaga el brillo del retrato y el halo del botón. */
+  @keyframes ac-motion {
+    0%,
+    51.4% {
+      opacity: 1;
+    }
+    53.4%,
+    88% {
+      opacity: 0;
+    }
+    90%,
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes ac-sweep {
+    0% {
+      transform: translateX(0) skewX(-14deg);
+    }
+    55%,
+    100% {
+      transform: translateX(34em) skewX(-14deg);
+    }
+  }
+  @keyframes ac-pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    70%,
+    100% {
+      transform: scale(1.55);
+      opacity: 0;
+    }
+  }
+
+  /* Interruptores. Uno por fila: solo cambia el momento de encendido. */
+  @keyframes ac-track-1 {
+    0%,
+    20.8% {
+      background: rgb(255 255 255 / 0.14);
+    }
+    21.6%,
+    88% {
+      background: #5cd2b9;
+    }
+    90%,
+    100% {
+      background: rgb(255 255 255 / 0.14);
+    }
+  }
+  @keyframes ac-track-2 {
+    0%,
+    30.8% {
+      background: rgb(255 255 255 / 0.14);
+    }
+    31.6%,
+    88% {
+      background: #5cd2b9;
+    }
+    90%,
+    100% {
+      background: rgb(255 255 255 / 0.14);
+    }
+  }
+  @keyframes ac-track-3 {
+    0%,
+    40.8% {
+      background: rgb(255 255 255 / 0.14);
+    }
+    41.6%,
+    88% {
+      background: #5cd2b9;
+    }
+    90%,
+    100% {
+      background: rgb(255 255 255 / 0.14);
+    }
+  }
+  @keyframes ac-track-4 {
+    0%,
+    50.8% {
+      background: rgb(255 255 255 / 0.14);
+    }
+    51.6%,
+    88% {
+      background: #5cd2b9;
+    }
+    90%,
+    100% {
+      background: rgb(255 255 255 / 0.14);
+    }
+  }
+  @keyframes ac-knob-1 {
+    0%,
+    20.8% {
+      transform: none;
+    }
+    22.4%,
+    88% {
+      transform: translateX(1em);
+    }
+    90%,
+    100% {
+      transform: none;
+    }
+  }
+  @keyframes ac-knob-2 {
+    0%,
+    30.8% {
+      transform: none;
+    }
+    32.4%,
+    88% {
+      transform: translateX(1em);
+    }
+    90%,
+    100% {
+      transform: none;
+    }
+  }
+  @keyframes ac-knob-3 {
+    0%,
+    40.8% {
+      transform: none;
+    }
+    42.4%,
+    88% {
+      transform: translateX(1em);
+    }
+    90%,
+    100% {
+      transform: none;
+    }
+  }
+  @keyframes ac-knob-4 {
+    0%,
+    50.8% {
+      transform: none;
+    }
+    52.4%,
+    88% {
+      transform: translateX(1em);
+    }
+    90%,
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes ac-panel {
+    0%,
+    12.8% {
+      opacity: 0;
+      transform: translateY(1.1em) scale(0.9);
+    }
+    17.5%,
+    88% {
+      opacity: 1;
+      transform: none;
+    }
+    91%,
+    100% {
+      opacity: 0;
+      transform: translateY(0.6em) scale(0.95);
+    }
+  }
+
+  @keyframes ac-tip {
+    0% {
+      opacity: 0;
+      transform: translateX(-0.5em);
+    }
+    3%,
+    10% {
+      opacity: 1;
+      transform: none;
+    }
+    12.6%,
+    100% {
+      opacity: 0;
+      transform: translateX(-0.5em);
+    }
+  }
+
+  @keyframes ac-fab {
+    0%,
+    12.2% {
+      transform: none;
+    }
+    12.8% {
+      transform: scale(0.88);
+    }
+    14.2%,
+    100% {
+      transform: none;
+    }
+  }
+
+  /* Recorrido del puntero. Coordenadas en la cabecera del archivo.
+
+     CADA PARADA ES: llega · asienta · pulsa · el interruptor cambia · se va.
+     El clic va en el PRIMER tercio de la parada (llega 19, pulsa 20.6, se va
+     24), nunca al final: antes se iba en el 23.6 y el mando del interruptor no
+     terminaba de cruzar hasta el 24.6, o sea DESPUÉS de que el puntero se
+     hubiera marchado. Se leía como que la escena iba a destiempo. */
+  @keyframes ac-cursor {
+    0% {
+      translate: 38em 39.5em;
+      opacity: 0;
+    }
+    2.5% {
+      opacity: 1;
+    }
+    9%,
+    14.2% {
+      translate: 3.9em 38.2em;
+      opacity: 1;
+    }
+    19%,
+    24% {
+      translate: 17.6em 23em;
+      opacity: 1;
+    }
+    29%,
+    34% {
+      translate: 17.6em 25.9em;
+      opacity: 1;
+    }
+    39%,
+    44% {
+      translate: 17.6em 28.8em;
+      opacity: 1;
+    }
+    49%,
+    54% {
+      translate: 17.6em 31.7em;
+      opacity: 1;
+    }
+    58% {
+      translate: 30em 36em;
+      opacity: 1;
+    }
+    63%,
+    100% {
+      translate: 34em 38.5em;
+      opacity: 0;
+    }
+  }
+  /* El «clic» va en `transform` y el recorrido en `translate`: propiedades
+     distintas, se componen sin pisarse. */
+  @keyframes ac-press {
+    0%,
+    12.2% {
+      transform: scale(1);
+    }
+    12.8% {
+      transform: scale(0.76);
+    }
+    13.6%,
+    20% {
+      transform: scale(1);
+    }
+    20.6% {
+      transform: scale(0.76);
+    }
+    21.4%,
+    30% {
+      transform: scale(1);
+    }
+    30.6% {
+      transform: scale(0.76);
+    }
+    31.4%,
+    40% {
+      transform: scale(1);
+    }
+    40.6% {
+      transform: scale(0.76);
+    }
+    41.4%,
+    50% {
+      transform: scale(1);
+    }
+    50.6% {
+      transform: scale(0.76);
+    }
+    51.4%,
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes ac-toast {
+    0%,
+    54% {
+      opacity: 0;
+      transform: translateY(1em) scale(0.92);
+    }
+    58%,
+    84% {
+      opacity: 1;
+      transform: none;
+    }
+    88%,
+    100% {
+      opacity: 0;
+      transform: translateY(0.5em) scale(0.96);
+    }
+  }
+
+  /* Fuera de pantalla no se anima nada. Los pseudoelementos hay que
+     nombrarlos aparte: `*` no los alcanza, y los subrayados son ::after. */
+  .ac,
+  .ac *,
+  .ac *::before,
+  .ac *::after {
+    animation-play-state: paused;
+  }
+  .ac[data-live],
+  .ac[data-live] *,
+  .ac[data-live] *::before,
+  .ac[data-live] *::after {
+    animation-play-state: running;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ac[data-live],
+    .ac[data-live] *,
+    .ac[data-live] *::before,
+    .ac[data-live] *::after {
+      animation: none !important;
+    }
+    /* Estado final, no inicial: el panel abierto, las cuatro opciones puestas
+       y la página ya cambiada. Un fotograma cero es una tarjeta vacía. */
+    .ac__site {
+      --ac-bg: #000000;
+      --ac-nav: #000000;
+      --ac-ink-2: #ffffff;
+      --ac-accent: #ffe14d;
+      --ac-line: rgb(255 255 255 / 0.6);
+    }
+    .st__copy {
+      font-size: 0.84em;
+    }
+    .st__eyebrow {
+      font-size: 0.74em;
+    }
+    .go {
+      font-size: 0.8em;
+    }
+    .st__nav span {
+      font-size: 0.78em;
+    }
+    .st__nav span::after,
+    .go::after {
+      transform: scaleX(1);
+    }
+    .st__sheen,
+    .fab__halo,
+    .ac__tip,
+    .ac__cursor {
+      opacity: 0;
+    }
+    .ac__panel,
+    .ac__toast {
+      opacity: 1;
+      transform: none;
+    }
+    .sw__track {
+      background: var(--mint);
+    }
+    .sw__track i {
+      transform: translateX(1em);
+    }
+  }
+</style>

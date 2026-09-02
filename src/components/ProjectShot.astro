@@ -11,6 +11,10 @@
  *
  * Tampoco llevan cifras: los números que tenían eran de relleno. Si algún día
  * hay un dato real, se añade `metrics` al .md y se pinta como en ProjectRow.
+ *
+ * `solo` es para cuando queda una única captura: la tarjeta se abre en fila,
+ * captura a un lado y texto al otro. Una tarjeta compacta sola dejaría medio
+ * ancho vacío a su derecha.
  */
 import type { CollectionEntry } from 'astro:content';
 import { Image } from 'astro:assets';
@@ -19,15 +23,21 @@ import Pin from '@/components/Pin.astro';
 interface Props {
   project: CollectionEntry<'projects'>;
   index: number;
+  /** Única captura del grupo: se pinta como fila en vez de tarjeta. */
+  solo?: boolean;
 }
-const { project, index } = Astro.props;
+const { project, index, solo = false } = Astro.props;
 const p = project.data;
 const num = String(index + 1).padStart(2, '0');
 
 const out = { href: p.url, target: '_blank', rel: 'noreferrer' } as const;
 ---
 
-<article class="ps" style={`--accent: var(--${p.accent})`} data-reveal>
+<article
+  class:list={['ps', solo && 'ps--solo']}
+  style={`--accent: var(--${p.accent})`}
+  data-reveal
+>
   <!-- Decorativo: duplica el enlace del título, así que fuera del orden de
        tabulación para no obligar a pasar dos veces por lo mismo. -->
   <a class="ps__art" {...out} tabindex="-1" aria-hidden="true">
@@ -93,6 +103,18 @@ const out = { href: p.url, target: '_blank', rel: 'noreferrer' } as const;
     display: grid;
     align-content: start;
     gap: 1.4rem;
+  }
+
+  /* Una sola captura: fila de dos columnas, con la imagen algo más ancha —
+     el mismo reparto que las filas grandes, para que no se lean como cosas
+     distintas. */
+  @media (min-width: 900px) {
+    .ps--solo {
+      grid-template-columns: 1.12fr 1fr;
+      gap: clamp(1.8rem, 3.4vw, 3.4rem);
+      align-items: center;
+      align-content: center;
+    }
   }
 
   .ps__art {
