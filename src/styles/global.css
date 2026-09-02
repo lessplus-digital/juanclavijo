@@ -64,7 +64,7 @@
   --c4: #e0a92c; /* mantequilla */
 
   --on-accent: #fff8f0;
-  --glow: 0.42;
+  --glow: 0.13;
   --grain: 0.055;
   --shadow-soft: 0 1px 2px rgb(20 18 15 / 0.04), 0 12px 34px -18px rgb(20 18 15 / 0.28);
   --shadow-lift: 0 2px 6px rgb(20 18 15 / 0.06), 0 34px 60px -30px rgb(20 18 15 / 0.4);
@@ -88,7 +88,7 @@
   --c4: #f3cb63;
 
   --on-accent: #14100c;
-  --glow: 0.3;
+  --glow: 0.2;
   --grain: 0.09;
   --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.5), 0 14px 34px -18px rgb(0 0 0 / 0.8);
   --shadow-lift: 0 2px 8px rgb(0 0 0 / 0.55), 0 40px 70px -34px rgb(0 0 0 / 0.9);
@@ -111,7 +111,7 @@
     --c3: #8b80ff;
     --c4: #f3cb63;
     --on-accent: #14100c;
-    --glow: 0.3;
+    --glow: 0.2;
     --grain: 0.09;
     --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.5), 0 14px 34px -18px rgb(0 0 0 / 0.8);
     --shadow-lift: 0 2px 8px rgb(0 0 0 / 0.55), 0 40px 70px -34px rgb(0 0 0 / 0.9);
@@ -267,6 +267,13 @@ p {
   padding-top: 0;
 }
 
+.section,
+#inicio,
+#main,
+[id] {
+  scroll-margin-top: clamp(5.5rem, 11vh, 7.5rem);
+}
+
 .rule {
   height: 1px;
   background: var(--line);
@@ -323,14 +330,13 @@ p {
   z-index: -1;
   pointer-events: none;
   overflow: clip;
-  contain: strict;
 }
 
 .aurora span {
   position: absolute;
   display: block;
   border-radius: 50%;
-  filter: blur(clamp(60px, 9vw, 120px));
+  filter: blur(clamp(90px, 13vw, 190px));
   opacity: var(--glow);
   will-change: transform;
 }
@@ -618,17 +624,14 @@ p {
 }
 
 /* Cambio de tema: círculo que se expande desde el interruptor */
-::view-transition-old(theme),
-::view-transition-new(theme) {
-  animation: none;
-  mix-blend-mode: normal;
-}
 html.theme-swap::view-transition-old(root) {
   animation: none;
+  mix-blend-mode: normal;
   z-index: 1;
 }
 html.theme-swap::view-transition-new(root) {
   animation: theme-reveal 0.62s var(--ease-out) both;
+  mix-blend-mode: normal;
   z-index: 2;
 }
 

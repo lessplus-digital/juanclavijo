@@ -43,7 +43,7 @@ export const metrics = [
   { value: '6+', label: 'años construyendo' },
   { value: '70%', label: 'menos tiempo de despliegue' },
   { value: '600', label: 'pedidos/mes automatizados' },
-  { value: '2', label: 'continentes, un mismo horario' },
+  { value: '2', label: 'continentes atendidos' },
 ] as const;
 
 /** Cinta infinita bajo el hero. */
@@ -253,7 +253,7 @@ export const sections: SectionDef[] = [
     eyebrow: 'Trabajo seleccionado',
     title: 'Cosas que existen y funcionan',
     intro:
-      'Cada proyecto es un archivo en /src/content/projects. Añade uno nuevo y aparece aquí solo.',
+      'Casos en producción, con el problema de negocio que había detrás y el número que cambió después.',
     enabled: true,
   },
   {
