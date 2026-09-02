@@ -786,19 +786,27 @@
     }
   }
 
-  /* Fuera de pantalla no se anima nada. */
-  .sim *,
-  .sim {
-    animation-play-state: paused;
-  }
-  .sim[data-live],
-  .sim[data-live] * {
-    animation-play-state: running;
+  /* Fuera de pantalla no se anima nada. Los pseudoelementos hay que
+     nombrarlos aparte: `*` no los alcanza.
+
+     VA CON `!important`: la regla de pausa es `.sim *`, y cualquier pieza con
+     un selector más específico (`.out__skel i`, `.out__months i`) la gana.
+     Como esas piezas declaran `animation:` en forma corta, la forma corta les
+     devuelve `animation-play-state: running` y seguían corriendo fuera de
+     pantalla mientras el resto esperaba en el 0%: al entrar, la escena
+     llegaba desfasada. */
+  .sim:not([data-live]),
+  .sim:not([data-live]) *,
+  .sim:not([data-live]) *::before,
+  .sim:not([data-live]) *::after {
+    animation-play-state: paused !important;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .sim[data-live],
-    .sim[data-live] * {
+    .sim,
+    .sim *,
+    .sim *::before,
+    .sim *::after {
       animation: none !important;
     }
     /* Estado final: formulario resuelto y estimación a la vista. */

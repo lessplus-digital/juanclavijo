@@ -229,6 +229,16 @@ ni JS de animación.
   elementos: las seis variables se registran con `@property` (`<color>`,
   `inherits: true`) y se animan UNA vez sobre la raíz de la página maquetada,
   en vez de escribir una decena de `@keyframes` gemelos.
+- **La regla de pausa de una escena va con `!important`, y no es adorno.** Es
+  `.ac:not([data-live]) *`, así que cualquier pieza con un selector más
+  específico —`.sw--1 .sw__track i`, `.st__nav span::after`— la gana; y como
+  esas piezas declaran `animation:` en forma corta, la forma corta les
+  devuelve `animation-play-state: running`. Sin el `!important`, los
+  interruptores y los subrayados de SOMOS seguían corriendo fuera de pantalla
+  mientras el resto esperaba en el 0%, y al entrar la escena llegaban con
+  medio ciclo de ventaja: **bajando desde arriba se veía desfasada y
+  recargando encima de ella, perfecta.** Al añadir una pieza con selector
+  compuesto no hay nada que tocar; el `!important` ya la cubre.
 - **`animation-play-state` no llega a los pseudoelementos con `*`.** Si una
   escena anima un `::before` o un `::after` (los subrayados de SOMOS), hay que
   nombrarlos en la regla de pausa o seguirán animándose fuera de pantalla.

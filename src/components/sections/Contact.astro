@@ -1,12 +1,15 @@
 ---
 /**
- * Contacto: cuatro canales, cada uno con su icono y su acento.
+ * Contacto: cinco canales, cada uno con su icono y su acento.
  *
  * EL CORREO SE DICE UNA SOLA VEZ. Antes iba dos veces —el titular grande y
  * otra vez como ficha «Correo» de la retícula— y se leía como un descuido.
  * Ahora la dirección vive solo en la ficha ancha, que ES la del correo: ocupa
  * la fila entera, lleva la dirección a cuerpo de titular y el botón de copiar.
- * Debajo van los otros tres canales, iguales entre ellos.
+ * Debajo van los otros cuatro canales, iguales entre ellos: dos filas de dos
+ * hasta 1040px y una sola fila de cuatro por encima. CUATRO ES EL NÚMERO QUE
+ * PIDE LA RETÍCULA: con tres columnas, un cuarto canal se quedaba solo en una
+ * segunda fila con dos huecos al lado.
  *
  * LOS LOGOTIPOS DE MARCA SE RESUELVEN AL COMPILAR, igual que en el stack
  * (`brands.ts`): al HTML llega solo la `d` del trazado, sin CDN ni paquete en
@@ -51,7 +54,7 @@ const linkedinPath =
 
 const arrowPath = 'M5 19 19 5M8.2 5H19v10.8';
 
-/** Los tres que acompañan al correo. El correo va aparte, en la ficha ancha. */
+/** Los cuatro que acompañan al correo. El correo va aparte, en la ficha ancha. */
 const channels = [
   {
     label: 'WhatsApp',
@@ -70,6 +73,15 @@ const channels = [
     accent: 'c3',
     path: linkedinPath,
     stroke: true,
+  },
+  {
+    label: 'Instagram',
+    value: '@clavijojuanpablo',
+    note: 'Un poco sobre mí',
+    href: profile.instagram,
+    accent: 'c1',
+    path: getBrand('instagram')?.path,
+    stroke: false,
   },
   {
     label: 'Currículum',
@@ -412,7 +424,11 @@ const channels = [
   }
 
   @media (min-width: 560px) {
+    .ch {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
     .ch__lead {
+      grid-column: 1 / -1;
       grid-template-columns: auto 1fr auto;
     }
     .ch__copy {
@@ -423,12 +439,9 @@ const channels = [
     }
   }
 
-  @media (min-width: 860px) {
+  @media (min-width: 1040px) {
     .ch {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .ch__lead {
-      grid-column: 1 / -1;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 </style>

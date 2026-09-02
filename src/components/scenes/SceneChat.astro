@@ -1097,26 +1097,27 @@
     }
   }
 
-  /* Fuera de pantalla no se anima nada. Los pseudoelementos hay que nombrarlos
-     aparte: `*` no los alcanza. */
-  .pl,
-  .pl *,
-  .pl *::before,
-  .pl *::after {
-    animation-play-state: paused;
-  }
-  .pl[data-live],
-  .pl[data-live] *,
-  .pl[data-live] *::before,
-  .pl[data-live] *::after {
-    animation-play-state: running;
+  /* Fuera de pantalla no se anima nada. Los pseudoelementos hay que
+     nombrarlos aparte: `*` no los alcanza.
+
+     VA CON `!important`: la regla de pausa es `.pl *`, y cualquier pieza con
+     un selector más específico (`.sp--1 i`, `.b--typing i`) la gana. Como esas
+     piezas declaran `animation:` en forma corta, la forma corta les devuelve
+     `animation-play-state: running` y seguían corriendo fuera de pantalla
+     mientras el resto esperaba en el 0%: al entrar, la escena llegaba
+     desfasada. */
+  .pl:not([data-live]),
+  .pl:not([data-live]) *,
+  .pl:not([data-live]) *::before,
+  .pl:not([data-live]) *::after {
+    animation-play-state: paused !important;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .pl[data-live],
-    .pl[data-live] *,
-    .pl[data-live] *::before,
-    .pl[data-live] *::after {
+    .pl,
+    .pl *,
+    .pl *::before,
+    .pl *::after {
       animation: none !important;
     }
     /* Estado final: la conversación entera y la comanda cerrada. Un fotograma

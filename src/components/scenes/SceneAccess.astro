@@ -1161,25 +1161,28 @@
   }
 
   /* Fuera de pantalla no se anima nada. Los pseudoelementos hay que
-     nombrarlos aparte: `*` no los alcanza, y los subrayados son ::after. */
-  .ac,
-  .ac *,
-  .ac *::before,
-  .ac *::after {
-    animation-play-state: paused;
-  }
-  .ac[data-live],
-  .ac[data-live] *,
-  .ac[data-live] *::before,
-  .ac[data-live] *::after {
-    animation-play-state: running;
+     nombrarlos aparte: `*` no los alcanza, y los subrayados son ::after.
+
+     VA CON `!important`, y no es adorno: la regla de pausa es `.ac *`, y
+     cualquier pieza con un selector más específico —`.sw--1 .sw__track i`,
+     `.st__nav span::after`— la gana. Como esas piezas declaran `animation:`
+     en forma corta, la forma corta les devuelve `animation-play-state:
+     running`: los interruptores y los subrayados seguían corriendo fuera de
+     pantalla mientras el resto esperaba en el 0%, y al entrar la escena
+     llegaban con medio ciclo de ventaja. Bajando desde arriba se veía
+     desfasada; recargando encima de ella, no. */
+  .ac:not([data-live]),
+  .ac:not([data-live]) *,
+  .ac:not([data-live]) *::before,
+  .ac:not([data-live]) *::after {
+    animation-play-state: paused !important;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ac[data-live],
-    .ac[data-live] *,
-    .ac[data-live] *::before,
-    .ac[data-live] *::after {
+    .ac,
+    .ac *,
+    .ac *::before,
+    .ac *::after {
       animation: none !important;
     }
     /* Estado final, no inicial: el panel abierto, las cuatro opciones puestas

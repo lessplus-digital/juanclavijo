@@ -32,6 +32,7 @@ export const profile = {
   phoneRaw: '+573113298122',
   website: 'www.juanclavijo.dev',
   linkedin: 'https://www.linkedin.com/in/juan-pablo-clavijo',
+  instagram: 'https://www.instagram.com/clavijojuanpablo/',
   /** PDF servido desde /public */
   cv: '/CV_JuanClavijo2026.pdf',
 } as const;
